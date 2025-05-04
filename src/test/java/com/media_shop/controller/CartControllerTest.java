@@ -1,11 +1,9 @@
-package com.media_shop.Controller;
+package com.media_shop.controller;
 
 import com.media_shop.repository.InMemoryProductRepository;
 import com.media_shop.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CartControllerTest {
     private CartController cartController;

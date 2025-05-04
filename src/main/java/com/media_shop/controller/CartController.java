@@ -1,4 +1,4 @@
-package com.media_shop.Controller;
+package com.media_shop.controller;
 
 import com.media_shop.entity.*;
 import com.media_shop.repository.ProductRepository;
