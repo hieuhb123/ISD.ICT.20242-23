@@ -1,36 +1,40 @@
 package com.media_shop.Controller;
 
-import java.util.List;
+import com.media_shop.entity.*;
+import com.media_shop.repository.ProductRepository;
 
 public class CartController {
-    private final CartRepository cartRepo;
+    private final Cart cart;
     private final ProductRepository productRepo;
 
-    public CartController(CartRepository cartRepo, ProductRepository productRepo) {
-        this.cartRepo = cartRepo;
+    public CartController(ProductRepository productRepo) {
+        this.cart = new Cart();
         this.productRepo = productRepo;
     }
 
-    public void addItem(int customerId, int productId, int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be positive");
-        }
-
-        Product product = productRepo.findById(productId);
-        Cart cart = cartRepo.findByCustomerId(customerId);
-
-        CartItem existingItem = cart.getItemByProduct(productId);
-        if (existingItem != null) {
-            existingItem.setQuantity(existingItem.getQuantity() + quantity);
-        } else {
-            cart.addItem(new CartItem(product, quantity));
-        }
-
-        cartRepo.save(cart);
+    public void addToCart(int productId, int quantity) {
+        Product product = productRepo.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found."));
+        cart.addItem(product, quantity);
     }
 
+    public void updateItem(int productId, int quantity) {
+        cart.updateQuantity(productId, quantity);
+    }
 
-    public List<CartItem> viewCart(int customerId) {
-        return cartRepo.findByCustomerId(customerId).getItems();
+    public void removeItem(int productId) {
+        cart.removeItem(productId);
+    }
+
+    public void viewCart() {
+        for (CartItem item : cart.getItems()) {
+            System.out.printf("Product: %s, Quantity: %d, Subtotal: %.2f%n",
+                    item.getProduct().getName(),
+                    item.getQuantity(),
+                    item.getTotalPrice()
+            );
+        }
+        System.out.printf("Total: %.2f%n", cart.getTotalPrice());
     }
 }
+

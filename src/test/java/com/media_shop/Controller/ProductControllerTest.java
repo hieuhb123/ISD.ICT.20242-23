@@ -1,5 +1,16 @@
 package com.media_shop.Controller;
 
+import com.media_shop.entity.Product;
+import com.media_shop.repository.ProductRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -46,3 +57,4 @@ class ProductControllerTest {
         });
     }
 }
+

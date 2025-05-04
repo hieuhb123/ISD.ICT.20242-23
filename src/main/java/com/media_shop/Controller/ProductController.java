@@ -1,5 +1,9 @@
 package com.media_shop.Controller;
 
+import com.media_shop.entity.Product;
+import com.media_shop.exception.ProductNotFoundException;
+import com.media_shop.repository.ProductRepository;
+
 public class ProductController {
     private final ProductRepository productRepo;
 
