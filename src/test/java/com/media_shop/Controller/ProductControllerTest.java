@@ -1,3 +1,5 @@
+package com.media_shop.Controller;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

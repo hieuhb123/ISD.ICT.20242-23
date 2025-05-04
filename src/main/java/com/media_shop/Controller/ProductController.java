@@ -1,3 +1,5 @@
+package com.media_shop.Controller;
+
 public class ProductController {
     private final ProductRepository productRepo;
 

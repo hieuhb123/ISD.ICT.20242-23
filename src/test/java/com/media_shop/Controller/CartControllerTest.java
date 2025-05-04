@@ -1,3 +1,5 @@
+package com.media_shop.Controller;
+
 class CartControllerTest {
 
     private CartController cartController;
