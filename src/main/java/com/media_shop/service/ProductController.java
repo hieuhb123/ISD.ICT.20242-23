@@ -1,4 +1,4 @@
-package com.media_shop.controller;
+package com.media_shop.service;
 
 import com.media_shop.entity.Product;
 import com.media_shop.exception.ProductNotFoundException;

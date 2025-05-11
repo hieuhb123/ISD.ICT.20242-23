@@ -1,4 +1,4 @@
-package com.media_shop.controller;
+package com.media_shop.service;
 
 import com.media_shop.repository.InMemoryProductRepository;
 import com.media_shop.repository.ProductRepository;
