@@ -1,5 +1,8 @@
 package com.media_shop.entity;
 
+// High cohesion - holds order state and operations
+// SRP respected - Order class encapsulates order-related data and state transitions
+
 public class Order {
     private String id;
     private boolean cancellable;
