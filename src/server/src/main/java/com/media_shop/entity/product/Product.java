@@ -14,10 +14,11 @@ public class Product {
     @Id
     protected String id;
     protected String title;
+    protected String description;
     protected String category;
     protected int price;
     protected int quantity;
-    protected int weight;
+    protected String weight;
     protected String dimension;
     protected String imageURL;
     private boolean rushDeliverySupport;
