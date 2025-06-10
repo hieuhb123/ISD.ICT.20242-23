@@ -1,6 +1,6 @@
-package com.aims.exception;
+package com.media_shop.exception;
 
-public class UserExistedException extends AIMSException{
+public class UserExistedException extends RuntimeException{
     public UserExistedException(String message) {
         super(message);
     }

@@ -4,11 +4,36 @@ const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('pm');
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Gọi API đăng nhập ở đây
-        alert(`Email: ${email}\nPassword: ${password}`);
+        setError('');
+        try {
+            let url = '';
+            if (role === 'pm') {
+                url = 'http://localhost:8080/api/ProductManager/login';
+            } else if (role === 'admin') {
+                url = 'http://localhost:8080/api/admin/login';
+            }
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: email,
+                    password: password
+                }),
+            });
+            const data = await res.json();
+            if (res.ok && data.code === 1) {
+                alert('Login successfully!');
+                // Lưu thông tin user nếu cần
+            } else {
+                setError(data.message || 'Login failed');
+            }
+        } catch (err) {
+            setError('Login failed');
+        }
     };
 
     return (
@@ -18,7 +43,7 @@ const Login: React.FC = () => {
                 <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
                 <div className="form-floating mb-2">
                     <input
-                        type="email"
+                        type="text"
                         className="form-control"
                         id="floatingInput"
                         placeholder="name@example.com"
@@ -41,7 +66,7 @@ const Login: React.FC = () => {
                     <label htmlFor="floatingPassword">Password</label>
                 </div>
                 <button className="btn btn-primary w-100 py-2" type="submit">Sign in</button>
-                <div className="list-group">
+                <div className="list-group mt-2">
                     <label className="list-group-item d-flex gap-2">
                         <input
                             className="form-check-input flex-shrink-0"
@@ -71,6 +96,7 @@ const Login: React.FC = () => {
                         </span>
                     </label>
                 </div>
+                {error && <div className="alert alert-danger py-1 mt-2">{error}</div>}
             </form>
         </main>
     );

@@ -1,16 +1,33 @@
-package com.aims.service;
+package com.media_shop.service;
 
-import com.aims.entity.user.User;
+import com.media_shop.entity.product.Book;
+import com.media_shop.entity.product.CD;
+import com.media_shop.entity.product.DVD;
+import com.media_shop.entity.product.Product;
+import com.media_shop.entity.user.ProductManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public interface UserService {
-    User createUser(String username, String password, String role);
+    ProductManager createUser(String username, String password);
     void deleteUser(String userId);
-    User changePassword(String userId, String currentPassword, String newPassword);
-    User updateUser(String id, User newUser);
-    List<User> getAllUsers();
-    User login(String username, String password, String role);
+    ProductManager changePassword(String userId, String currentPassword, String newPassword);
+//    ProductManager updateUser(String id, ProductManager newUser);
+    List<ProductManager> getAllProductManager();
+    ProductManager login(String username, String password);
+
+    Product addCD(String userId, CD product);
+    Product addBook(String userId, Book product);
+    Product addDVD(String userId, DVD product);
+
+    Product updateCD(String id, CD product);
+    Product updateBook(String id, Book product);
+    Product updateDVD(String id, DVD product);
+
+    void deleteProduct(String userId, String id);
+    void deleteListProduct(String userId, List<String> ids);
+
+    Product updatePrice(String productId, int newPrice);
 }

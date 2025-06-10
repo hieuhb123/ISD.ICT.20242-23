@@ -1,6 +1,6 @@
-package com.aims.exception;
+package com.media_shop.exception;
 
-public class UserBlockedException extends AIMSException{
+public class UserBlockedException extends RuntimeException {
     public UserBlockedException(String message) {
         super(message);
     }

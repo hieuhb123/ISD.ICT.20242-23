@@ -12,18 +12,4 @@ import java.util.List;
 public interface ProductService {
     List<Product> viewAllProduct();
     Product viewProduct(String id);
-
-    Product addCD(CD product);
-    Product addBook(Book product);
-    Product addDVD(DVD product);
-
-    Product updateCD(String id, CD product);
-    Product updateBook(String id, Book product);
-    Product updateDVD(String id, DVD product);
-
-    void deleteProduct(String id);
-    void deleteListProduct(List<String> ids);
-
-    Product updatePrice(String productId, int newPrice);
-
 }

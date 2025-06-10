@@ -12,22 +12,16 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/user")
-public class UserController {
+@RequestMapping("/api/admin")
+public class AdminController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public AdminController(UserService userService) {
         this.userService = userService;
     }
 
-    @PostMapping("/login/ProductManager")
-    public ResponseEntity<media_shopResponse<ProductManager>> login(@RequestBody ProductManager loginRequest) {
-        ProductManager user = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
-        media_shopResponse<ProductManager> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Login successfully", user);
-        return ResponseEntity.ok(response);
-    }
-    @PostMapping("/login/admin")
+    @PostMapping("/login")
     public ResponseEntity<media_shopResponse<String>> loginAdmin(@RequestBody admin loginRequest) {
         if ("admin".equals(loginRequest.getUsername()) && "admin".equals(loginRequest.getPassword())) {
             media_shopResponse<String> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Login successfully", "admin");

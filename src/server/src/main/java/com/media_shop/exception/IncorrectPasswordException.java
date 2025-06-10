@@ -1,6 +1,6 @@
-package com.aims.exception;
+package com.media_shop.exception;
 
-public class IncorrectPasswordException extends AIMSException{
+public class IncorrectPasswordException extends RuntimeException{
     public IncorrectPasswordException(String message) {
         super(message);
     }

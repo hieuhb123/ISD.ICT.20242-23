@@ -1,6 +1,6 @@
-package com.aims.exception;
+package com.media_shop.exception;
 
-public class UserNotFoundException extends AIMSException{
+public class UserNotFoundException extends RuntimeException{
     public UserNotFoundException(String message) {
         super(message);
     }
