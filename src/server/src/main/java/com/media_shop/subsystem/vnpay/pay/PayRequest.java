@@ -11,13 +11,12 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.media_shop.subsystem.vnpay.VNPayConfig.vnp_Version;
-
 @Data
 @AllArgsConstructor
 public class PayRequest {
     private int amount;
     private String orderId;
+
 
     public String generateURL() throws UnsupportedEncodingException {
         String orderType = "other";
@@ -29,12 +28,12 @@ public class PayRequest {
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
 
         Map<String, String> vnp_Params = new HashMap<>();
-        vnp_Params.put("vnp_Version", vnp_Version);
+        vnp_Params.put("vnp_Version", VNPayConfig.vnp_Version);
         vnp_Params.put("vnp_Command", VNPayConfig.vnp_Command_pay);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(amountVNPay));
         vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_BankCode", "VNBANK");
+        //vnp_Params.put("vnp_BankCode", "VNBANK");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + orderId);
         vnp_Params.put("vnp_OrderType", orderType);

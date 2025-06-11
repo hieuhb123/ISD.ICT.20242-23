@@ -14,12 +14,12 @@ public class VNPayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_ReturnUrl = "http://localhost:3000/result"; //
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
-    public static String vnp_TmnCode = "4L8WLJ7O";
-    public static String secretKey = "RD770WAJFJHMA5FH2TLW1TK5EPQBBDWD";
+    public static String vnp_TmnCode = "HM1APVKP";
+    public static String secretKey = "JLLIIFDRPNUMIUTCMXQSJ9AB6LLT2IM1";
     public static String vnp_Version = "2.1.0";
     public static String vnp_Command_pay = "pay";
     public static String vnp_Command_refund = "refund";
-    public static String website_name = "aims";
+    public static String website_name = "media_shop";
 
     public static String md5(String message) {
         String digest = null;

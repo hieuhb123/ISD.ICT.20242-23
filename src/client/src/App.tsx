@@ -5,6 +5,7 @@ import ProductDetail from './pages/ProductDetail';
 import Header from './components/Header';
 import CartPage from './pages/Cart';
 import Login from './pages/Login';
+import Return from './pages/vnpay_return';
 const App: React.FC = () => (
   <Router>
     <Header />
@@ -13,6 +14,7 @@ const App: React.FC = () => (
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/result" element={<Return />} />
     </Routes>
   </Router>
 );

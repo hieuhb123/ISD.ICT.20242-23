@@ -1,8 +1,6 @@
 package com.media_shop.entity.cart;
 
 import java.util.List;
-
-import com.media_shop.entity.cart.CartItem;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
