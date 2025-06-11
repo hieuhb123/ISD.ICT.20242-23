@@ -1,4 +1,4 @@
-package com.aims.entity.delivery;
+package com.media_shop.entity.delivery;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

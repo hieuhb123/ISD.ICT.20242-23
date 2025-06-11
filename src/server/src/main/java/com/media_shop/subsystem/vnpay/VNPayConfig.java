@@ -1,4 +1,4 @@
-package com.aims.subsystem.vnpay;
+package com.media_shop.subsystem.vnpay;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

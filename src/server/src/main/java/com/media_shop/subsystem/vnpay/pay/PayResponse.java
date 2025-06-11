@@ -1,11 +1,11 @@
-package com.aims.subsystem.vnpay.pay;
+package com.media_shop.subsystem.vnpay.pay;
 
-import com.aims.entity.payment.PaymentTransaction;
-import com.aims.exception.AIMSException;
-import com.aims.exception.payment.pay.*;
-import com.aims.utils.Utils;
+import com.media_shop.entity.payment.PaymentTransaction;
+import com.media_shop.exception.pay.*;
+import com.media_shop.utils.Utils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+
 import java.util.Map;
 import java.util.Objects;
 
@@ -54,7 +54,7 @@ public class PayResponse {
             case "07":
                 throw new SuspiciousTransactionException();
             default:
-                throw new AIMSException();
+                throw new RuntimeException();
         }
         return trans;
     }

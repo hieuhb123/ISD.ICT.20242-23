@@ -1,10 +1,10 @@
-package com.aims.subsystem.vnpay.refund;
+package com.media_shop.subsystem.vnpay.refund;
 
 
 
-import com.aims.entity.payment.PaymentTransaction;
-import com.aims.subsystem.vnpay.VNPayConfig;
-import com.aims.utils.Utils;
+import com.media_shop.entity.payment.PaymentTransaction;
+import com.media_shop.subsystem.vnpay.VNPayConfig;
+import com.media_shop.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static com.aims.subsystem.vnpay.VNPayConfig.vnp_Version;
+import static com.media_shop.subsystem.vnpay.VNPayConfig.vnp_Version;
 
 public class RefundRequest {
     private final PaymentTransaction paymentTransaction;

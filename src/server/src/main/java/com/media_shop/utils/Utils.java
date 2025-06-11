@@ -1,17 +1,8 @@
-package com.aims.utils;
+package com.media_shop.utils;
 
-import com.aims.entity.order.Order;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DateFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.logging.Logger;
+import java.util.Date;
 
 
 public class Utils {

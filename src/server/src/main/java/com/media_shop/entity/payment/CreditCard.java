@@ -1,4 +1,4 @@
-package com.aims.entity.payment;
+package com.media_shop.entity.payment;
 
 
 import lombok.AllArgsConstructor;

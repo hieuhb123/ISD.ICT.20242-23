@@ -1,6 +1,6 @@
-package com.aims.entity.order;
+package com.media_shop.entity.order;
 
-import com.aims.entity.delivery.DeliveryInfo;
+import com.media_shop.entity.delivery.DeliveryInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

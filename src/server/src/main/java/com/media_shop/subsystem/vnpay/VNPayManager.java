@@ -1,17 +1,18 @@
-package com.aims.subsystem.vnpay;
+package com.media_shop.subsystem.vnpay;
 
-import com.aims.entity.payment.PaymentTransaction;
-import com.aims.entity.payment.RefundTransaction;
-import com.aims.subsystem.vnpay.pay.PayRequest;
-import com.aims.subsystem.vnpay.pay.PayResponse;
-import com.aims.subsystem.vnpay.refund.RefundRequest;
-import com.aims.subsystem.vnpay.refund.RefundResponse;
+import com.media_shop.entity.payment.PaymentTransaction;
+import com.media_shop.entity.payment.RefundTransaction;
+import com.media_shop.subsystem.vnpay.pay.PayRequest;
+import com.media_shop.subsystem.vnpay.pay.PayResponse;
+import com.media_shop.subsystem.vnpay.refund.RefundRequest;
+import com.media_shop.subsystem.vnpay.refund.RefundResponse;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class VNPayManager {

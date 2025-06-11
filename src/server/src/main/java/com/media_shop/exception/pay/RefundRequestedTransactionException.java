@@ -1,6 +1,6 @@
-package com.media_shop.subsystem.exception.pay;
+package com.media_shop.exception.pay;
 
-import com.media_shop.subsystem.exception.PaymentException;
+import com.media_shop.exception.PaymentException;
 
 public class RefundRequestedTransactionException extends PaymentException {
     public RefundRequestedTransactionException() {

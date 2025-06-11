@@ -1,6 +1,6 @@
-package com.media_shop.subsystem.exception.refund;
+package com.media_shop.exception.refund;
 
-import com.media_shop.subsystem.exception.PaymentException;
+import com.media_shop.exception.PaymentException;
 
 public class InvalidCheckSumException extends PaymentException {
     public InvalidCheckSumException() {

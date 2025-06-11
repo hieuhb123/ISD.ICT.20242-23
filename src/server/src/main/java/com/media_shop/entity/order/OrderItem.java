@@ -1,7 +1,7 @@
-package com.aims.entity.order;
+package com.media_shop.entity.order;
 
 
-import com.aims.entity.product.Product;
+import com.media_shop.entity.product.Product;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

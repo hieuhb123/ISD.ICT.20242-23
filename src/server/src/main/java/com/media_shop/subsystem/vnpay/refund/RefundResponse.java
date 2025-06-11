@@ -1,8 +1,7 @@
-package com.aims.subsystem.vnpay.refund;
+package com.media_shop.subsystem.vnpay.refund;
 
-import com.aims.entity.payment.RefundTransaction;
-import com.aims.exception.AIMSException;
-import com.aims.exception.payment.refund.*;
+import com.media_shop.entity.payment.RefundTransaction;
+import com.media_shop.exception.refund.*;
 import lombok.AllArgsConstructor;
 
 import java.util.Map;
@@ -39,7 +38,7 @@ public class RefundResponse {
             case "97":
                 throw new InvalidCheckSumException();
             default:
-                throw new AIMSException();
+                throw new RuntimeException();
         }
         return refundTransaction;
     }

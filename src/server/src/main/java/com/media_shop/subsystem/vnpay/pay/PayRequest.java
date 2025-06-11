@@ -1,7 +1,7 @@
-package com.aims.subsystem.vnpay.pay;
+package com.media_shop.subsystem.vnpay.pay;
 
 
-import com.aims.subsystem.vnpay.VNPayConfig;
+import com.media_shop.subsystem.vnpay.VNPayConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.aims.subsystem.vnpay.VNPayConfig.vnp_Version;
+import static com.media_shop.subsystem.vnpay.VNPayConfig.vnp_Version;
 
 @Data
 @AllArgsConstructor
