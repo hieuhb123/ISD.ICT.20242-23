@@ -1,5 +1,7 @@
 package com.media_shop.service.implementation;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.media_shop.entity.product.*;
 import com.media_shop.repository.product.*;
 import com.media_shop.entity.user.ProductManager;
@@ -11,9 +13,12 @@ import com.media_shop.exception.UserNotFoundException;
 import com.media_shop.repository.user.ProductManagerRepository;
 import com.media_shop.service.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -226,6 +231,13 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new ProductNotFoundException("Product not found");
         }
+    }
+
+    @Override
+    public String getURLImage(Cloudinary cloudinary, MultipartFile image) throws IOException{
+        Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = (String) uploadResult.get("secure_url");
+        return imageUrl;
     }
 
 }

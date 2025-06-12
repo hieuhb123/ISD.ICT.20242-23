@@ -1,12 +1,15 @@
 package com.media_shop.service;
 
+import com.cloudinary.Cloudinary;
 import com.media_shop.entity.product.Book;
 import com.media_shop.entity.product.CD;
 import com.media_shop.entity.product.DVD;
 import com.media_shop.entity.product.Product;
 import com.media_shop.entity.user.ProductManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -30,4 +33,6 @@ public interface UserService {
     void deleteListProduct(String userId, List<String> ids);
 
     Product updatePrice(String productId, int newPrice);
+
+    String getURLImage(Cloudinary cloudinary, MultipartFile image) throws IOException ;
 }

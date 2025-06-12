@@ -3,9 +3,7 @@ package com.media_shop.service.implementation;
 import com.media_shop.entity.cart.Cart;
 import com.media_shop.entity.cart.CartItem;
 import com.media_shop.entity.product.Product;
-import com.media_shop.exception.ProductNotFoundException;
 import com.media_shop.repository.cart.CartRepository;
-import com.media_shop.repository.product.ProductRepository;
 import com.media_shop.service.CartService;
 import org.springframework.stereotype.Service;
 

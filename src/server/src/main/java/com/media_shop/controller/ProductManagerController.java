@@ -8,6 +8,12 @@ import com.media_shop.service.UserService;
 import com.media_shop.utils.Constants;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.cloudinary.*;
+import io.github.cdimascio.dotenv.Dotenv;
+
+import java.io.IOException;
 
 import java.util.List;
 
@@ -17,6 +23,7 @@ import java.util.List;
 public class ProductManagerController {
 
     private final UserService userService;
+    private final Cloudinary cloudinary = new Cloudinary(Dotenv.load().get("CLOUDINARY_URL"));
 
     public ProductManagerController(UserService userService) {
         this.userService = userService;
@@ -44,21 +51,40 @@ public class ProductManagerController {
     }
 
     @PostMapping("/add-cd")
-    public ResponseEntity<media_shopResponse<Product>> addCD(@RequestParam String userId, @RequestBody CD product) {
+    public ResponseEntity<media_shopResponse<Product>> addCD(
+            @RequestParam String userId,
+            @RequestPart("product") CD product,
+            @RequestPart("image") MultipartFile image) throws IOException {
+
+        String imageUrl = userService.getURLImage(cloudinary, image);
+        product.setImageURL(imageUrl);
+
         Product prod = userService.addCD(userId, product);
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Add CD successfully", prod);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/add-book")
-    public ResponseEntity<media_shopResponse<Product>> addBook(@RequestParam String userId, @RequestBody Book product) {
+    public ResponseEntity<media_shopResponse<Product>> addBook(
+        @RequestParam String userId, 
+        @RequestBody Book product,
+        @RequestPart("image") MultipartFile image) throws IOException {
+
+        String imageUrl = userService.getURLImage(cloudinary, image);
+        product.setImageURL(imageUrl);
         Product prod = userService.addBook(userId, product);
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Add book successfully", prod);
         return ResponseEntity.ok(response);
+
     }
 
     @PostMapping("/add-dvd")
-    public ResponseEntity<media_shopResponse<Product>> addDVD(@RequestParam String userId, @RequestBody DVD product) {
+    public ResponseEntity<media_shopResponse<Product>> addDVD(
+        @RequestParam String userId, 
+        @RequestBody DVD product,
+        @RequestPart("image") MultipartFile image) throws IOException {
+        String imageUrl = userService.getURLImage(cloudinary, image);
+        product.setImageURL(imageUrl);
         Product prod = userService.addDVD(userId, product);
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Add DVD successfully", prod);
         return ResponseEntity.ok(response);
