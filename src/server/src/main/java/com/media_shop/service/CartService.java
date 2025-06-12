@@ -15,5 +15,5 @@ public interface CartService {
     Cart removeItem(String cartId, Product product);
     Cart clearCart(String cartId);
     List<CartItem> getAllCartItems(String cartId);
-    int getTotalPrice(String cartId);
+    double getTotalPrice(String cartId);
 }

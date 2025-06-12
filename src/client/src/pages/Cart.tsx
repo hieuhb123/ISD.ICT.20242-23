@@ -58,7 +58,7 @@ const CartPage: React.FC = () => {
                             {cart.listCartItem.map((item, idx) => (
                                 <tr key={idx}>
                                     <td>
-                                        <img src={item.product.imageUrl} alt={item.product.title} width={60} />
+                                        <img src={item.product.imageURL} alt={item.product.title} width={60} />
                                     </td>
                                     <td>{item.product.title}</td>
                                     <td>{item.quantity}</td>

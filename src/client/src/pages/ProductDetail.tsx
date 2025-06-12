@@ -80,7 +80,7 @@ const ProductDetail: React.FC = () => {
             <Link to="/">← Back to Home</Link>
             <div className="row mt-3">
                 <div className="col-md-6 d-flex justify-content-center align-items-start">
-                    <img src={item.imageUrl} className="img-fluid" alt={item.title} style={{ maxHeight: 450, objectFit: 'contain' }} />
+                    <img src={item.imageURL} className="img-fluid" alt={item.title} style={{ maxHeight: 450, objectFit: 'contain' }} />
                 </div>
                 <div className="col-md-6">
                     <h2>{item.title}</h2>

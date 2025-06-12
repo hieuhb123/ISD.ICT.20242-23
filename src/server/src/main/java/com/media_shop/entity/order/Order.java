@@ -21,6 +21,6 @@ public class Order {
     private String cartId;
     private List<OrderItem> listOrderItem;
     private DeliveryInfo deliveryInfo;
-    private int totalAmount;
+    private double totalAmount;
     private String status;
 }

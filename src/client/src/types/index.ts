@@ -1,6 +1,6 @@
 type MediaItem = {
     id: string;
-    imageUrl: string;
+    imageURL: string;
     title: string;
     price: number | string;
     description?: string;

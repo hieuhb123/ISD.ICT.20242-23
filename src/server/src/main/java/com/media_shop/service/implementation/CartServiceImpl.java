@@ -50,7 +50,7 @@ public class CartServiceImpl implements CartService {
         }
 
         cart.setTotalPrice(cart.getListCartItem().stream()
-                .mapToInt(item -> item.getProduct().getPrice() * item.getQuantity())
+                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
                 .sum());
         return cartRepository.save(cart);
     }
@@ -64,7 +64,7 @@ public class CartServiceImpl implements CartService {
         }
 
         cart.setTotalPrice(cart.getListCartItem().stream()
-                .mapToInt(item -> item.getProduct().getPrice() * item.getQuantity())
+                .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantity())
                 .sum());
         return cartRepository.save(cart);
     }
@@ -83,7 +83,7 @@ public class CartServiceImpl implements CartService {
         return cart.getListCartItem();
     }
     @Override
-    public int getTotalPrice(String cartId) {
+    public double getTotalPrice(String cartId) {
         Cart cart = getCart(cartId);
         return cart.getTotalPrice();
     }

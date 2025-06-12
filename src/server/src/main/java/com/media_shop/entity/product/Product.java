@@ -16,7 +16,7 @@ public class Product {
     protected String title;
     protected String description;
     protected String category;
-    protected int price;
+    protected double price;
     protected int quantity;
     protected String weight;
     protected String dimension;

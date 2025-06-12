@@ -40,10 +40,11 @@ const Home: React.FC = () => {
             <div className="container py-4">
                 <div className="row row-cols-1 row-cols-2 row-cols-3 row-cols-4 row-cols-5 g-4">
                     {mediaItems.map((item, idx) => (
+                        console.log(item.imageURL), // Debugging line to check item structure
                         <div className="col" key={idx}>
                             <div className="card shadow-sm h-100">
                                 <img
-                                    src={item.imageUrl}
+                                    src={item.imageURL}
                                     className="card-img-top"
                                     alt={item.title}
                                     style={{ height: 225, objectFit: 'cover', cursor: 'pointer' }}

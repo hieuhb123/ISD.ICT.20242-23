@@ -55,10 +55,8 @@ public class ProductManagerController {
             @RequestParam String userId,
             @RequestPart("product") CD product,
             @RequestPart("image") MultipartFile image) throws IOException {
-
         String imageUrl = userService.getURLImage(cloudinary, image);
         product.setImageURL(imageUrl);
-
         Product prod = userService.addCD(userId, product);
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Add CD successfully", prod);
         return ResponseEntity.ok(response);
