@@ -1,12 +1,13 @@
 package com.media_shop.controller;
 
+import com.media_shop.dto.CartProductDTO;
 import com.media_shop.entity.cart.Cart;
-import com.media_shop.entity.product.Product;
-import com.media_shop.repository.product.ProductRepository;
 import com.media_shop.repository.media_shopResponse;
-import com.media_shop.exception.ProductNotFoundException;
 import com.media_shop.service.CartService;
 import com.media_shop.utils.Constants;
+
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,17 +17,15 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
 
     private final CartService cartService;
-    private final ProductRepository productRepository;
 
-    public CartController(CartService cartService, ProductRepository productRepository) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
-        this.productRepository = productRepository;
     }
 
     @GetMapping("/{cartId}")
-    public ResponseEntity<media_shopResponse<Cart>> getCart(@PathVariable String cartId) {
-        Cart cart =cartService.getCart(cartId);
-        media_shopResponse<Cart> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Get cart successfully", cart);
+    public ResponseEntity<media_shopResponse<List<CartProductDTO>>> getCart(@PathVariable String cartId) {
+        List<CartProductDTO> cart = cartService.getAllCartItems(cartId);
+        media_shopResponse<List<CartProductDTO>> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Get cart successfully", cart);
         return ResponseEntity.ok(response);
     }
 
@@ -39,24 +38,20 @@ public class CartController {
 
     @PostMapping("/{cartId}/add")
     public ResponseEntity<media_shopResponse<Cart>> addCartProduct(@PathVariable String cartId, @RequestParam String productId, @RequestParam int quantity) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-        Cart cart = cartService.addItem(cartId, product, quantity);
+        Cart cart = cartService.addItem(cartId, productId, quantity);
         media_shopResponse<Cart> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Add product to cart successfully", cart);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{cartId}/remove")
-    public ResponseEntity<media_shopResponse<Cart>> removeCartProduct(@PathVariable String cartId, @RequestParam String productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-        Cart cart =  cartService.removeItem(cartId, product);
+    @DeleteMapping("/remove")
+    public ResponseEntity<media_shopResponse<Cart>> removeCartProduct(@RequestParam String cartId, @RequestParam String productId) {
+        Cart cart =  cartService.removeItem(cartId, productId);
         media_shopResponse<Cart> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Remove product from cart successfully", cart);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{cartId}/clear")
-    public ResponseEntity<media_shopResponse<Cart>> clearCart(@PathVariable String cartId) {
+    @PostMapping("/clear")
+    public ResponseEntity<media_shopResponse<Cart>> clearCart(@RequestParam String cartId) {
         Cart cart = cartService.clearCart(cartId);
         media_shopResponse<Cart> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Clear cart successfully", cart);
         return ResponseEntity.ok(response);

@@ -9,6 +9,7 @@ type MediaItem = {
     weight: string;
     dimension?: string;
     rushDeliverySupport: boolean;
+    isDeleted: boolean;
 
     // CD specific fields (optional)
     artist?: string;
@@ -35,6 +36,7 @@ type MediaItem = {
 
 type CartItem = {
     product: MediaItem;
+    statusCode: number; 
     quantity: number;
 };
 

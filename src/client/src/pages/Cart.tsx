@@ -1,45 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { getOrCreateCartId } from '../utils/cartId';
-import { Cart } from '../types';
+import { Cart, CartItem } from '../types';
 
 const CartPage: React.FC = () => {
-    const [cart, setCart] = useState<Cart | null>(null);
-
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    
     useEffect(() => {
         const fetchCart = async () => {
             const cartId = await getOrCreateCartId();
             const res = await fetch(`http://localhost:8080/api/cart/${cartId}`);
             const data = await res.json();
-            setCart(data.data);
+            setCartItems(data.data || []);
         };
         fetchCart();
     }, []);
 
     const handleClearCart = async () => {
-        if (!cart) return;
-        await fetch(`http://localhost:8080/api/cart/${cart.id}/clear`, {
+        if (cartItems.length === 0) return;
+        const cartId = await getOrCreateCartId();
+        await fetch(`http://localhost:8080/api/cart/clear?cartId=${cartId}`, {
             method: 'POST',
         });
-        setCart({ ...cart, listCartItem: [], totalPrice: 0 });
+        setCartItems([]);
     };
 
     const handleRemoveItem = async (productId: string) => {
-        if (!cart) return;
-        await fetch(`http://localhost:8080/api/cart/${cart.id}/remove?productId=${productId}`, {
+        if (cartItems.length === 0) return;
+        const cartId = await getOrCreateCartId();
+        await fetch(`http://localhost:8080/api/cart/remove?cartId=${cartId}&productId=${productId}`, {
             method: 'DELETE',
         });
-        // Sau khi xóa, cập nhật lại cart
-        const res = await fetch(`http://localhost:8080/api/cart/${cart.id}`);
-        const data = await res.json();
-        setCart(data.data);
+        setCartItems(prevItems => prevItems.filter(item => item.product.id !== productId));
     };
-
-    if (!cart) return <div>Loading...</div>;
 
     return (
         <div className="container py-4">
             <h2>Your Cart</h2>
-            {!cart?.listCartItem || cart.listCartItem.length === 0 ? (
+            {cartItems.length === 0 ? (
                 <p>Your cart is empty.</p>
             ) : (
                 <>
@@ -51,11 +48,12 @@ const CartPage: React.FC = () => {
                                 <th>Quantity</th>
                                 <th>Price</th>
                                 <th>Subtotal</th>
+                                <th>Status</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {cart.listCartItem.map((item, idx) => (
+                            {cartItems.map((item, idx) => (
                                 <tr key={idx}>
                                     <td>
                                         <img src={item.product.imageURL} alt={item.product.title} width={60} />
@@ -64,6 +62,14 @@ const CartPage: React.FC = () => {
                                     <td>{item.quantity}</td>
                                     <td>${item.product.price}</td>
                                     <td>${Number(item.product.price) * item.quantity}</td>
+                                    <td>
+                                        {item.statusCode === 2
+                                            ? <span className="badge bg-danger">Đã xóa</span>
+                                            : item.statusCode === 0
+                                                ? <span className="badge bg-warning text-dark">Hết hàng</span>
+                                                : <span className="badge bg-success">Còn hàng</span>
+                                        }
+                                    </td>
                                     <td>
                                         <button
                                             className="btn btn-sm btn-outline-danger"
@@ -77,7 +83,11 @@ const CartPage: React.FC = () => {
                         </tbody>
                     </table>
                     <div className="d-flex justify-content-between align-items-center">
-                        <h4>Total: ${cart.totalPrice}</h4>
+                        <h4>
+                            Total: $
+                            {cartItems.reduce((sum, item) =>
+                                sum + Number(item.product.price) * item.quantity, 0)}
+                        </h4>
                         <button className="btn btn-danger" onClick={handleClearCart}>Clear Cart</button>
                     </div>
                 </>

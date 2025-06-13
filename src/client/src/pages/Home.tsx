@@ -40,20 +40,19 @@ const Home: React.FC = () => {
             <div className="container py-4">
                 <div className="row row-cols-1 row-cols-2 row-cols-3 row-cols-4 row-cols-5 g-4">
                     {mediaItems.map((item, idx) => (
-                        console.log(item.imageURL), // Debugging line to check item structure
                         <div className="col" key={idx}>
                             <div className="card shadow-sm h-100">
                                 <img
                                     src={item.imageURL}
                                     className="card-img-top"
                                     alt={item.title}
-                                    style={{ height: 225, objectFit: 'cover', cursor: 'pointer' }}
+                                    style={{ height: 300, objectFit: 'cover', cursor: 'pointer' }}
                                     onClick={() => handleCardClick(item.id)}
                                 />
-                                <div className="card-body">
-                                    <h5 className="card-title" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(item.id)}>{item.title}</h5>
-                                    <p className="card-text">${item.price}</p>
-                                    <div className="d-flex justify-content-between align-items-center">
+                                <div className="d-flex flex-column align-items-star card-body">
+                                    <h5 className="card-title mb-auto" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(item.id)}>{item.title}</h5>
+                                    <p className="mt-3 mb-1 card-text">${item.price}</p>
+                                    <div className="justify-content-between">
                                         <button type="button" className="btn btn-outline-secondary" onClick={() => handleAddToCart(item.id)}>
                                             ADD TO CART
                                         </button>

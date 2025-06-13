@@ -21,6 +21,7 @@ public class Product {
     protected String weight;
     protected String dimension;
     protected String imageURL;
+    protected boolean isDeleted;
     private boolean rushDeliverySupport;
 }
 
