@@ -23,7 +23,7 @@ type MediaItem = {
     publishDate?: string; // ISO string hoặc Date nếu bạn parse
     numOfPages?: number;
     language?: string;
-    bookCategory?: string;
+    bookCategory?: string[];
 
     // DVD specific fields (optional)
     discType?: string;

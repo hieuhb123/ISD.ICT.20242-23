@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 @Document(collection = "product")
 @Data
@@ -18,5 +19,5 @@ public class Book extends Product {
     Date publishDate;
     int numOfPages;
     String language;
-    String bookCategory;
+    List<String> bookCategory;
 }

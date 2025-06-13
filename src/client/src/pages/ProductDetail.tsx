@@ -3,50 +3,9 @@ import { useParams, Link } from 'react-router-dom';
 import { MediaItem } from '../types';
 import { getOrCreateCartId } from '../utils/cartId';
 
-const renderCategoryDetails = (item: any) => {
-    switch (item.category) {
-        case 'book':
-            return (
-                <div>
-                    <p><strong>Author:</strong> {item.author}</p>
-                    <p><strong>Cover Type:</strong> {item.coverType}</p>
-                    <p><strong>Publisher:</strong> {item.publisher}</p>
-                    <p><strong>Publish Date:</strong> {item.publishDate ? new Date(item.publishDate).toLocaleDateString() : ''}</p>
-                    <p><strong>Pages:</strong> {item.numOfPages}</p>
-                    <p><strong>Language:</strong> {item.language}</p>
-                    <p><strong>Book Category:</strong> {item.bookCategory}</p>
-                </div>
-            );
-        case 'cd':
-            return (
-                <div>
-                    <p><strong>Artist:</strong> {item.artist}</p>
-                    <p><strong>Record Label:</strong> {item.recordLabel}</p>
-                    <p><strong>Music Type:</strong> {item.musicType}</p>
-                    <p><strong>Released Date:</strong> {item.releasedDate ? new Date(item.releasedDate).toLocaleDateString() : ''}</p>
-                </div>
-            );
-        case 'dvd':
-            return (
-                <div>
-                    <p><strong>Disc Type:</strong> {item.discType}</p>
-                    <p><strong>Director:</strong> {item.director}</p>
-                    <p><strong>Duration:</strong> {item.duration}</p>
-                    <p><strong>Language:</strong> {item.language}</p>
-                    <p><strong>Subtitles:</strong> {item.subtitles}</p>
-                    <p><strong>Released Date:</strong> {item.releasedDate ? new Date(item.releasedDate).toLocaleDateString() : ''}</p>
-                    <p><strong>Film Type:</strong> {item.filmType}</p>
-                </div>
-            );
-        default:
-            return <div>No additional info.</div>;
-    }
-};
-
 const ProductDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [item, setItem] = useState<MediaItem | null>(null);
-    const [activeTab, setActiveTab] = useState<'description' | 'other'>('description');
     const [amount, setAmount] = useState<number>(1);
 
     useEffect(() => {
@@ -77,65 +36,92 @@ const ProductDetail: React.FC = () => {
 
     return (
         <div className="container py-4">
-            <Link to="/">← Back to Home</Link>
-            <div className="row mt-3">
-                <div className="col-md-6 d-flex justify-content-center align-items-start">
-                    <img src={item.imageURL} className="img-fluid" alt={item.title} style={{ maxHeight: 450, objectFit: 'contain' }} />
+            <nav aria-label="breadcrumb">
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><Link to="/">Home</Link></li>
+                    <li className="breadcrumb-item active" aria-current="page">{item.title}</li>
+                </ol>
+            </nav>
+            <div className="row">
+                {/* Left: Product Images */}
+                <div className="col-md-5">
+                    <img src={item.imageURL} className="img-fluid border mb-2" alt={item.title} style={{ maxHeight: 400, objectFit: 'contain' }} />
+                    {/* Nếu có nhiều ảnh, render thêm thumbnail ở đây */}
+                    {/* <div className="d-flex gap-2">
+                        <img src={item.imageURL} width={60} className="border" alt="" />
+                        ... 
+                    </div> */}
                 </div>
-                <div className="col-md-6">
-                    <h2>{item.title}</h2>
-                    <div className="mb-2"><strong>${item.price}</strong></div>
-                    <div className="mb-3 d-flex align-items-center">
-                        <label className="me-2 mb-0" htmlFor="amount">Amount:</label>
+                {/* Right: Product Info */}
+                <div className="col-md-7">
+                    <h3>{item.title}</h3>
+                    <div className="mb-2">
+                        <span className="fs-4 text-danger fw-bold">{item.price}₫</span>
+                        {/* <span className="text-muted ms-2"><del>Giá gốc</del></span> */}
+                    </div>
+                    <div className="mb-2">
+                        <span className="badge bg-secondary">{item.category}</span>
+                    </div>
+                    <div className="mb-3">
+                        <label className="me-2">Số lượng:</label>
                         <input
-                            id="amount"
                             type="number"
                             min={1}
                             value={amount}
                             onChange={e => setAmount(Number(e.target.value))}
-                            style={{ width: 70 }}
+                            style={{ width: 70, display: 'inline-block' }}
                             className="form-control d-inline-block me-2"
                         />
-                        <button className="btn btn-danger" onClick={handleAddToCart}>ADD TO CART</button>
+                        <button className="btn btn-danger" onClick={handleAddToCart}>Thêm Vào Giỏ Hàng</button>
                     </div>
-                    <div>
-                        <span className="badge bg-secondary me-2">{item.category}</span>
+                    {/* Thông tin thêm nếu muốn */}
+                    <div className="mb-2">
+                        <span>Số lượng còn lại: {item.quantity}</span>
                     </div>
                 </div>
             </div>
-            {/* Tabs */}
-            <div className="mt-5">
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <button
-                            className={`nav-link ${activeTab === 'description' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('description')}
-                        >
-                            Description
-                        </button>
-                    </li>
-                    <li className="nav-item">
-                        <button
-                            className={`nav-link ${activeTab === 'other' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('other')}
-                        >
-                            Additional Info
-                        </button>
-                    </li>
-                </ul>
-                <div className="tab-content border border-top-0 p-3 bg-light">
-                    {activeTab === 'description' && (
-                        <div>
-                            <h5>Description</h5>
-                            <p>{item.description || 'No description available.'}</p>
+            {/* Product Detail Section */}
+            <div className="row mt-4">
+                <div className="col-md-8">
+                    <div className="bg-white p-3 rounded shadow-sm mb-3">
+                        <h5 className="mb-3">CHI TIẾT SẢN PHẨM</h5>
+                        <table className="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td className="text-muted" style={{ width: 200 }}>Danh mục</td>
+                                    <td>{item.category}</td>
+                                </tr>
+                                <tr>
+                                    <td className="text-muted">Số lượng còn lại</td>
+                                    <td>{item.quantity}</td>
+                                </tr>
+                                <tr>
+                                    <td className="text-muted">Khối lượng</td>
+                                    <td>{item.weight}</td>
+                                </tr>
+                                <tr>
+                                    <td className="text-muted">Hỗ trợ giao hàng nhanh</td>
+                                    <td>{item.rushDeliverySupport ? 'Có' : 'Không'}</td>
+                                </tr>
+                                {item.dimension && (
+                                    <tr>
+                                        <td className="text-muted">Kích thước (dài x rộng x cao)</td>
+                                        <td>{item.dimension}</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="bg-white p-3 rounded shadow-sm">
+                        <h5 className="mb-3">MÔ TẢ SẢN PHẨM</h5>
+                        <div style={{ whiteSpace: 'pre-line' }}>
+                            {item.description || 'Không có mô tả.'}
                         </div>
-                    )}
-                    {activeTab === 'other' && (
-                        <div>
-                            <h5>Additional Info</h5>
-                            {renderCategoryDetails(item)}
-                        </div>
-                    )}
+                    </div>
+                </div>
+                {/* Sidebar: Có thể thêm voucher, sản phẩm nổi bật, ... */}
+                <div className="col-md-4">
+                    {/* ... */}
                 </div>
             </div>
         </div>

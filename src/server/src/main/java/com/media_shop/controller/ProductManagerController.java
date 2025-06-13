@@ -64,8 +64,8 @@ public class ProductManagerController {
 
     @PostMapping("/add-book")
     public ResponseEntity<media_shopResponse<Product>> addBook(
-        @RequestParam String userId, 
-        @RequestBody Book product,
+        @RequestParam String userId,
+        @RequestPart("product") Book product,
         @RequestPart("image") MultipartFile image) throws IOException {
 
         String imageUrl = userService.getURLImage(cloudinary, image);
@@ -78,8 +78,8 @@ public class ProductManagerController {
 
     @PostMapping("/add-dvd")
     public ResponseEntity<media_shopResponse<Product>> addDVD(
-        @RequestParam String userId, 
-        @RequestBody DVD product,
+        @RequestParam String userId,
+        @RequestPart("product") DVD product,
         @RequestPart("image") MultipartFile image) throws IOException {
         String imageUrl = userService.getURLImage(cloudinary, image);
         product.setImageURL(imageUrl);
