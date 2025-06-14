@@ -8,6 +8,7 @@ import java.util.List;
 public class Order {
     @Id
     private String id;
+    private String userId;
     private boolean cancellable;
     private boolean cancelled;
     private List<OrderItem> items;
@@ -61,6 +62,13 @@ public class Order {
 
     public void setTotal(int total) {
         this.total = total;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public void cancel() {

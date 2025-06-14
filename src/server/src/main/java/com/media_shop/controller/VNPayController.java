@@ -1,5 +1,6 @@
 package com.media_shop.controller;
 
+import com.media_shop.entity.order.Order;
 import com.media_shop.entity.payment.PaymentTransaction;
 import com.media_shop.entity.payment.RefundTransaction;
 import com.media_shop.repository.media_shopResponse;
@@ -8,16 +9,13 @@ import com.media_shop.repository.transaction.RefundTransactionRepository;
 import com.media_shop.repository.order.OrderRepository;
 import com.media_shop.subsystem.vnpay.VNPayService;
 import com.media_shop.utils.Constants;
-
-import ch.qos.logback.core.model.Model;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -60,10 +58,12 @@ public class VNPayController {
         String vnp_OrderInfo = request.getParameter("vnp_OrderInfo");
 
         try {
-            
+            Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+            String userId = order.getUserId();
             PaymentTransaction trans = new PaymentTransaction(
                 null,                         
-                "userId",              
+                userId,          
                 orderId,              
                 Long.parseLong(amount),
                 vnp_OrderInfo,         

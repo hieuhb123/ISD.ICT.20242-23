@@ -31,7 +31,7 @@ public class RefundRequest {
         String vnp_Command = VNPayConfig.vnp_Command_refund;
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
         String vnp_TransactionType = "02";
-        String vnp_TxnRef = paymentTransaction.getVnp_TxnRef();
+        String vnp_TxnRef = paymentTransaction.getOrderId();
         long amount = paymentTransaction.getVnp_Amount() * 100L;
         String vnp_Amount = String.valueOf(amount);
         String vnp_OrderInfo = "Hoan tien GD OrderId:" + vnp_TxnRef;
