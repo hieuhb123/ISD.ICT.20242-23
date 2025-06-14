@@ -14,8 +14,9 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/place")
-    public ResponseEntity<Order> placeOrder(@RequestBody OrderRequestDTO orderRequestDTO) {
+    public ResponseEntity<Order> placeOrder(@RequestBody OrderRequestDTO orderRequestDTO, @RequestParam String userId) {
         Order order = orderService.placeOrder(orderRequestDTO);
+        order.setUserId(userId);
         return ResponseEntity.ok(order);
     }
 }
