@@ -5,8 +5,14 @@ import com.media_shop.entity.payment.RefundTransaction;
 import com.media_shop.repository.media_shopResponse;
 import com.media_shop.repository.transaction.PaymentTransactionRepository;
 import com.media_shop.repository.transaction.RefundTransactionRepository;
+import com.media_shop.repository.order.OrderRepository;
 import com.media_shop.subsystem.vnpay.VNPayService;
 import com.media_shop.utils.Constants;
+
+import ch.qos.logback.core.model.Model;
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +27,17 @@ public class VNPayController {
     private final VNPayService vnpayService;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final RefundTransactionRepository refundTransactionRepository;
+    private final OrderRepository orderRepository;
 
-    public VNPayController(VNPayService vnpayService, PaymentTransactionRepository paymentTransactionRepository, RefundTransactionRepository refundTransactionRepository) {
+    public VNPayController(
+        VNPayService vnpayService, 
+        PaymentTransactionRepository paymentTransactionRepository, 
+        RefundTransactionRepository refundTransactionRepository,
+        OrderRepository orderRepository) {
         this.vnpayService = vnpayService;
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.refundTransactionRepository = refundTransactionRepository;
+        this.orderRepository = orderRepository;
     }
 
     @GetMapping("/pay")
@@ -35,6 +47,56 @@ public class VNPayController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/pay_return")
+    public String payReturn(HttpServletRequest request, Model model) {
+        // Get parameters from VNPay return URL
+        String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
+        String orderId = request.getParameter("vnp_TxnRef"); 
+        String amount = request.getParameter("vnp_Amount");
+        String vnp_TransactionNo = request.getParameter("vnp_TransactionNo");
+        String vnp_TransactionStatus = request.getParameter("vnp_TransactionStatus");
+        String vnp_BankCode = request.getParameter("vnp_BankCode");
+        String vnp_PayDate = request.getParameter("vnp_PayDate");
+        String vnp_OrderInfo = request.getParameter("vnp_OrderInfo");
+
+        try {
+            
+            PaymentTransaction trans = new PaymentTransaction(
+                null,                         
+                "userId",              
+                orderId,              
+                Long.parseLong(amount),
+                vnp_OrderInfo,         
+                vnp_ResponseCode,      
+                vnp_TransactionNo,     
+                vnp_BankCode,          
+                vnp_PayDate,           
+                vnp_TransactionStatus  
+            );
+            
+            paymentTransactionRepository.save(trans);
+
+            // Add attributes to return view
+            if ("00".equals(vnp_ResponseCode)) {
+                model.addAttribute("status", "success");
+                model.addAttribute("message", "Thanh toán thành công!");
+                model.addAttribute("orderId", orderId);
+                model.addAttribute("amount", Long.parseLong(amount)/100); // Convert from VNĐ
+                return "payment-success"; // Return success view template
+            } else {
+                model.addAttribute("status", "failed");
+                model.addAttribute("message", "Thanh toán thất bại!");
+                model.addAttribute("orderId", orderId);
+                return "payment-failed"; // Return failed view template
+            }
+
+        } catch (Exception e) {
+            model.addAttribute("status", "error");
+            model.addAttribute("message", "Có lỗi xảy ra: " + e.getMessage());
+            return "payment-error"; // Return error view template
+        }
+    }
+
     @GetMapping("/refund")
     public ResponseEntity<media_shopResponse<RefundTransaction>> refund(@RequestBody PaymentTransaction paymentTransaction) throws IOException {
             RefundTransaction refundTransaction = vnpayService.refund(paymentTransaction);
@@ -42,13 +104,6 @@ public class VNPayController {
             media_shopResponse<RefundTransaction> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Refund successfully", refundTransaction);
             return ResponseEntity.ok(response);
     }
-
-    @PostMapping("/save-payment-transaction")
-    public ResponseEntity<media_shopResponse<PaymentTransaction>> saveTransaction(@RequestBody Map<String, String> response) {
-        PaymentTransaction paymentTransaction = vnpayService.savePaymentTransaction(response);
-        paymentTransactionRepository.save(paymentTransaction);
-        media_shopResponse<PaymentTransaction> res = new media_shopResponse<>(Constants.SUCCESS_CODE, "Save payment transaction successfully", paymentTransaction);
-        return ResponseEntity.ok(res);
-    }
+    
 
 }

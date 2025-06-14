@@ -1,7 +1,7 @@
 package com.media_shop.subsystem.vnpay.pay;
 
 
-import com.media_shop.subsystem.vnpay.VNPayConfig;
+import com.media_shop.subsystem.vnpay.config.VNPayConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -22,7 +22,6 @@ public class PayRequest {
         String orderType = "other";
         long amountVNPay = amount * 100L;
 
-        String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
         String vnp_IpAddr = VNPayConfig.getIpAddress();
 
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
@@ -33,8 +32,7 @@ public class PayRequest {
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
         vnp_Params.put("vnp_Amount", String.valueOf(amountVNPay));
         vnp_Params.put("vnp_CurrCode", "VND");
-        //vnp_Params.put("vnp_BankCode", "VNBANK");
-        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_TxnRef", orderId);
         vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang: " + orderId);
         vnp_Params.put("vnp_OrderType", orderType);
         vnp_Params.put("vnp_Locale", "vn");

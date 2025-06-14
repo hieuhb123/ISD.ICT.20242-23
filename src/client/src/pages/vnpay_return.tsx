@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 function getParam(name: string) {
     return new URLSearchParams(window.location.search).get(name) || '';
@@ -13,8 +13,25 @@ const VNPayReturn: React.FC = () => {
     const vnp_BankCode = getParam('vnp_BankCode');
     const vnp_PayDate = getParam('vnp_PayDate');
     const vnp_TransactionStatus = getParam('vnp_TransactionStatus');
-    // const vnp_SecureHash = getParam('vnp_SecureHash'); // Nếu cần kiểm tra chữ ký, nên làm ở backend
-
+    
+    useEffect(() => {
+        const res = fetch("http://localhost:8080/api/payment/save-payment-transaction", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: localStorage.getItem('userId'),
+                orderId: vnp_TxnRef,
+                vnp_TxnRef: vnp_TxnRef,
+                vnp_Amount: vnp_Amount,
+                vnp_OrderInfo: vnp_OrderInfo,
+                vnp_ResponseCode: vnp_ResponseCode,
+                vnp_TransactionNo: vnp_TransactionNo,
+                vnp_BankCode: vnp_BankCode,
+                vnp_PayDate: vnp_PayDate,
+                vnp_TransactionStatus: vnp_TransactionStatus
+            }),
+        });
+    }, []);
     let status = '';
     if (vnp_TransactionStatus === '00') {
         status = 'Thành công';

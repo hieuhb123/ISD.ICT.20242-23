@@ -31,7 +31,12 @@ const ProductDetail: React.FC = () => {
             alert('Failed to add to cart!');
         }
     };
-
+    function formatDate(dateStr?: string) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr; // Nếu không parse được thì trả về nguyên bản
+        return date.toLocaleDateString('vi-VN'); // hoặc 'en-GB', hoặc custom format
+    }
     if (!item) return <div>Loading...</div>;
 
     return (
@@ -107,6 +112,108 @@ const ProductDetail: React.FC = () => {
                                     <tr>
                                         <td className="text-muted">Kích thước (dài x rộng x cao)</td>
                                         <td>{item.dimension}</td>
+                                    </tr>
+                                )}
+
+                                {/* CD fields */}
+                                {item.artist && (
+                                    <tr>
+                                        <td className="text-muted">Nghệ sĩ</td>
+                                        <td>{item.artist}</td>
+                                    </tr>
+                                )}
+                                {item.recordLabel && (
+                                    <tr>
+                                        <td className="text-muted">Hãng phát hành</td>
+                                        <td>{item.recordLabel}</td>
+                                    </tr>
+                                )}
+                                {item.musicType && (
+                                    <tr>
+                                        <td className="text-muted">Thể loại nhạc</td>
+                                        <td>{item.musicType}</td>
+                                    </tr>
+                                )}
+                                {item.releasedDate && (
+                                    <tr>
+                                        <td className="text-muted">Ngày phát hành</td>
+                                        <td>{formatDate(item.releasedDate)}</td>
+                                    </tr>
+                                )}
+
+                                {/* Book fields */}
+                                {item.author && (
+                                    <tr>
+                                        <td className="text-muted">Tác giả</td>
+                                        <td>{item.author}</td>
+                                    </tr>
+                                )}
+                                {item.coverType && (
+                                    <tr>
+                                        <td className="text-muted">Loại bìa</td>
+                                        <td>{item.coverType}</td>
+                                    </tr>
+                                )}
+                                {item.publisher && (
+                                    <tr>
+                                        <td className="text-muted">Nhà xuất bản</td>
+                                        <td>{item.publisher}</td>
+                                    </tr>
+                                )}
+                                {item.publishDate && (
+                                    <tr>
+                                        <td className="text-muted">Ngày xuất bản</td>
+                                        <td>{formatDate(item.publishDate)}</td>
+                                    </tr>
+                                )}
+                                {item.numOfPages && (
+                                    <tr>
+                                        <td className="text-muted">Số trang</td>
+                                        <td>{item.numOfPages}</td>
+                                    </tr>
+                                )}
+                                {item.language && (
+                                    <tr>
+                                        <td className="text-muted">Ngôn ngữ</td>
+                                        <td>{item.language}</td>
+                                    </tr>
+                                )}
+                                {item.bookCategory && item.bookCategory.length > 0 && (
+                                    <tr>
+                                        <td className="text-muted">Thể loại sách</td>
+                                        <td>{item.bookCategory.join(', ')}</td>
+                                    </tr>
+                                )}
+
+                                {/* DVD fields */}
+                                {item.discType && (
+                                    <tr>
+                                        <td className="text-muted">Loại đĩa</td>
+                                        <td>{item.discType}</td>
+                                    </tr>
+                                )}
+                                {item.director && (
+                                    <tr>
+                                        <td className="text-muted">Đạo diễn</td>
+                                        <td>{item.director}</td>
+                                    </tr>
+                                )}
+                                {item.duration && (
+                                    <tr>
+                                        <td className="text-muted">Thời lượng</td>
+                                        <td>{item.duration}</td>
+                                    </tr>
+                                )}
+                                {item.subtitles && (
+                                    <tr>
+                                        <td className="text-muted">Phụ đề</td>
+                                        <td>{item.subtitles}</td>
+                                    </tr>
+                                )}
+                                {item.filmType && (
+                                    <tr>
+                                        <td className="text-muted">Thể loại phim</td>
+                                        <td>{item.filmType}</td>
                                     </tr>
                                 )}
                             </tbody>

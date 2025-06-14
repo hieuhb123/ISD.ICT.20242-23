@@ -6,20 +6,20 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
-
-@Document(collection = "payment_transaction")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(collection = "payment_transaction")
 public class PaymentTransaction {
     @Id
-    private String transactionId;
+    private String id;
+    private String userId;
     private String orderId;
-    private String errorCode; // code response from bank
-    private long amount;
-    private String transactionNum;
-    private String transactionContent;
-    private String message;
-    private String createdAt;
+    private long vnp_Amount;
+    private String vnp_OrderInfo;
+    private String vnp_ResponseCode;
+    private String vnp_TransactionNo;
+    private String vnp_BankCode;
+    private String vnp_PayDate;
+    private String vnp_TransactionStatus;
 }

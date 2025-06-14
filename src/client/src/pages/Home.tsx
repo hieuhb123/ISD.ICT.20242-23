@@ -42,13 +42,30 @@ const Home: React.FC = () => {
                     {mediaItems.map((item, idx) => (
                         <div className="col" key={idx}>
                             <div className="card shadow-sm h-100">
-                                <img
-                                    src={item.imageURL}
-                                    className="card-img-top"
-                                    alt={item.title}
-                                    style={{ height: 300, objectFit: 'cover', cursor: 'pointer' }}
-                                    onClick={() => handleCardClick(item.id)}
-                                />
+                                <div style={{ position: 'relative' }}>
+                                    <img
+                                        src={item.imageURL}
+                                        className="card-img-top"
+                                        alt={item.title}
+                                        style={{ height: 300, objectFit: 'cover', cursor: 'pointer' }}
+                                        onClick={() => handleCardClick(item.id)}
+                                    />
+                                    <span
+                                        className="badge bg-danger"
+                                        style={{
+                                            position: 'absolute',
+                                            top: 8,
+                                            left: 8,
+                                            zIndex: 2,
+                                            fontSize: 14,
+                                            padding: '6px 12px',
+                                            borderRadius: 8,
+                                            opacity: 0.95
+                                        }}
+                                    >
+                                        {item.category}
+                                    </span>
+                                </div>
                                 <div className="d-flex flex-column align-items-star card-body">
                                     <h5 className="card-title mb-auto" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(item.id)}>{item.title}</h5>
                                     <p className="mt-3 mb-1 card-text">${item.price}</p>
