@@ -76,7 +76,6 @@ public class VNPayController {
             
             paymentTransactionRepository.save(trans);
 
-            // Add attributes to return view
             if ("00".equals(vnp_ResponseCode)) {
                 model.addAttribute("status", "success");
                 model.addAttribute("message", "Thanh toán thành công!");

@@ -6,13 +6,13 @@ import com.media_shop.entity.product.Product;
 import com.media_shop.repository.order.OrderRepository;
 import com.media_shop.repository.product.ProductRepository;
 import com.media_shop.service.OrderService;
+import com.media_shop.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -37,12 +37,12 @@ public class OrderServiceImpl implements OrderService {
             orderItems.add(new OrderItem(itemDTO.getProductId(), itemDTO.getQuantity(), product.getPrice()));
         }
         Order order = new Order();
-        order.setId(UUID.randomUUID().toString());
+        order.setUserId(orderRequestDTO.getUserId());
+        order.setShippingAddress(orderRequestDTO.getShippingAddress());
         order.setCancellable(true);
-        order.setCancelled(false);
+        order.setStatus(Constants.ORDER_STATUS_PENDING);
         order.setItems(orderItems);
         order.setTotal(total);
-        // Có thể set thêm userId, shippingAddress nếu Order entity có các trường này
         return orderRepository.save(order);
     }
 }

@@ -9,17 +9,17 @@ public class Order {
     @Id
     private String id;
     private String userId;
+    private String shippingAddress;
     private boolean cancellable;
-    private boolean cancelled;
     private List<OrderItem> items;
     private double total;
+    private String status;
 
     public Order() {}
 
     public Order(String id, boolean cancellable, List<OrderItem> items, double total) {
         this.id = id;
         this.cancellable = cancellable;
-        this.cancelled = false;
         this.items = items;
         this.total = total;
     }
@@ -32,20 +32,19 @@ public class Order {
         this.id = id;
     }
 
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+    public void setShippingAddress(String shippingAddress) {
+        this.shippingAddress = shippingAddress;
+    }
+
     public boolean isCancellable() {
         return cancellable;
     }
 
     public void setCancellable(boolean cancellable) {
         this.cancellable = cancellable;
-    }
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
     }
 
     public List<OrderItem> getItems() {
@@ -71,7 +70,10 @@ public class Order {
         this.userId = userId;
     }
 
-    public void cancel() {
-        this.cancelled = true;
+    public String getStatus() {
+        return status;
+    }
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
