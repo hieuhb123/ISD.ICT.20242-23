@@ -14,10 +14,9 @@ public class media_shopResponse<T> {
     }
 
      public media_shopResponse(int code, String message, T data) {
-         this.code = code;
-         this.message = message;
-         this.data = data;
-     }
-
+        this.code = code;
+        this.message = message;
+        this.data = data;
+        }
      // Getters and Setters
  }

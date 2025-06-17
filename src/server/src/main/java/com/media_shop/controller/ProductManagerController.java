@@ -1,20 +1,18 @@
 package com.media_shop.controller;
 
-
-import com.media_shop.repository.media_shopResponse;
+import com.cloudinary.Cloudinary;
 import com.media_shop.entity.product.*;
-import com.media_shop.entity.user.*;
+import com.media_shop.entity.user.ProductManager;
+import com.media_shop.repository.media_shopResponse;
 import com.media_shop.service.UserService;
 import com.media_shop.utils.Constants;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cloudinary.*;
-import io.github.cdimascio.dotenv.Dotenv;
-
 import java.io.IOException;
-
 import java.util.List;
 
 @RestController
@@ -24,6 +22,9 @@ public class ProductManagerController {
 
     private final UserService userService;
     private final Cloudinary cloudinary = new Cloudinary(Dotenv.load().get("CLOUDINARY_URL"));
+    
+    // Define a constant for the maximum number of products that can be deleted at once.
+    private static final int MAX_PRODUCTS_PER_DELETION_REQUEST = 10;
 
     public ProductManagerController(UserService userService) {
         this.userService = userService;
@@ -64,23 +65,21 @@ public class ProductManagerController {
 
     @PostMapping("/add-book")
     public ResponseEntity<media_shopResponse<Product>> addBook(
-        @RequestParam String userId,
-        @RequestPart("product") Book product,
-        @RequestPart("image") MultipartFile image) throws IOException {
-
+            @RequestParam String userId,
+            @RequestPart("product") Book product,
+            @RequestPart("image") MultipartFile image) throws IOException {
         String imageUrl = userService.getURLImage(cloudinary, image);
         product.setImageURL(imageUrl);
         Product prod = userService.addBook(userId, product);
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Add book successfully", prod);
         return ResponseEntity.ok(response);
-
     }
 
     @PostMapping("/add-dvd")
     public ResponseEntity<media_shopResponse<Product>> addDVD(
-        @RequestParam String userId,
-        @RequestPart("product") DVD product,
-        @RequestPart("image") MultipartFile image) throws IOException {
+            @RequestParam String userId,
+            @RequestPart("product") DVD product,
+            @RequestPart("image") MultipartFile image) throws IOException {
         String imageUrl = userService.getURLImage(cloudinary, image);
         product.setImageURL(imageUrl);
         Product prod = userService.addDVD(userId, product);
@@ -118,6 +117,24 @@ public class ProductManagerController {
 
     @DeleteMapping("/delete-list")
     public ResponseEntity<media_shopResponse<Void>> deleteListProduct(@RequestParam String userId, @RequestParam List<String> ids) {
+        // Condition 1: The list of IDs cannot be null or empty.
+        if (ids == null || ids.isEmpty()) {
+            media_shopResponse<Void> response = new media_shopResponse<>(
+                    Constants.ERROR_CODE,
+                    "Product ID list cannot be empty."
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        // Condition 2: The number of products to delete cannot exceed the defined limit.
+        if (ids.size() > MAX_PRODUCTS_PER_DELETION_REQUEST) {
+            media_shopResponse<Void> response = new media_shopResponse<>(
+                    Constants.ERROR_CODE,
+                    "Cannot delete more than " + MAX_PRODUCTS_PER_DELETION_REQUEST + " products at a time. You attempted to delete " + ids.size() + " products."
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
         userService.deleteListProduct(userId, ids);
         media_shopResponse<Void> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Delete list product successfully");
         return ResponseEntity.ok(response);
@@ -129,5 +146,4 @@ public class ProductManagerController {
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Update price successfully", newProduct);
         return ResponseEntity.ok(response);
     }
-
 }
