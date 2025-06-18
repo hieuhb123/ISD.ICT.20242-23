@@ -235,6 +235,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getURLImage(Cloudinary cloudinary, MultipartFile image) throws IOException{
+        @SuppressWarnings("rawtypes")
         Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("secure_url");
         return imageUrl;
