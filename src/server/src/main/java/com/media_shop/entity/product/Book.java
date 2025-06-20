@@ -1,7 +1,7 @@
 package com.media_shop.entity.product;
 
 import lombok.AllArgsConstructor;
-// import lombok.Data;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Document(collection = "product")
-// @Data
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Book extends Product {

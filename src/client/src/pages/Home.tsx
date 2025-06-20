@@ -51,7 +51,7 @@ const Home: React.FC = () => {
                                         onClick={() => handleCardClick(item.id)}
                                     />
                                     <span
-                                        className="badge bg-danger"
+                                        className={item.quantity === 0 ? "badge text-bg-danger" : "badge text-bg-primary"}
                                         style={{
                                             position: 'absolute',
                                             top: 8,
@@ -63,7 +63,7 @@ const Home: React.FC = () => {
                                             opacity: 0.95
                                         }}
                                     >
-                                        {item.category}
+                                        {item.quantity === 0 ? "Hết hàng" : item.productType}
                                     </span>
                                 </div>
                                 <div className="d-flex flex-column align-items-star card-body">

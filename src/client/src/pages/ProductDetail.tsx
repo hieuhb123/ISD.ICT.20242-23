@@ -11,7 +11,10 @@ const ProductDetail: React.FC = () => {
     useEffect(() => {
         fetch(`http://localhost:8080/api/product/${id}`)
             .then(res => res.json())
-            .then(data => setItem(data.data))
+            .then(data => {
+                setItem(data.data);
+                console.log('Fetched item:', data.data);   
+            })
             .catch(err => console.error('Failed to fetch item info:', err));
     }, [id]);
 
@@ -65,7 +68,7 @@ const ProductDetail: React.FC = () => {
                         {/* <span className="text-muted ms-2"><del>Giá gốc</del></span> */}
                     </div>
                     <div className="mb-2">
-                        <span className="badge bg-secondary">{item.category}</span>
+                        <span className="badge bg-secondary">{item.productType}</span>
                     </div>
                     <div className="mb-3">
                         <label className="me-2">Số lượng:</label>
@@ -94,7 +97,7 @@ const ProductDetail: React.FC = () => {
                             <tbody>
                                 <tr>
                                     <td className="text-muted" style={{ width: 200 }}>Danh mục</td>
-                                    <td>{item.category}</td>
+                                    <td>{item.productType}</td>
                                 </tr>
                                 <tr>
                                     <td className="text-muted">Số lượng còn lại</td>

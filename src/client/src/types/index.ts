@@ -4,7 +4,7 @@ type MediaItem = {
     title: string;
     price: number | string;
     description?: string;
-    category: string;
+    productType: string;
     quantity: number;
     weight: string;
     dimension?: string;
@@ -40,12 +40,18 @@ type CartItem = {
     quantity: number;
 };
 
-type Cart = {
-    id: string;
-    listCartItem: CartItem[];
-    totalPrice: number;
+type OrderItem = {
+    productId: String;
+    quantity: number;
 };
 
+type Order = {
+    orderId?: string; // Có thể có nếu server trả về
+    userId: string;
+    shippingAddress: string;
+    items: OrderItem[];
+    createdAt?: string;  
+};
 
-export type { MediaItem, CartItem, Cart };
+export type { MediaItem, CartItem , OrderItem, Order };
 

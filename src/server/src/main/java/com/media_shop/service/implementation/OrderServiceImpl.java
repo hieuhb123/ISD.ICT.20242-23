@@ -1,8 +1,9 @@
 package com.media_shop.service.implementation;
 
-import com.media_shop.dto.OrderRequestDTO;
+import com.media_shop.entity.cart.*;
 import com.media_shop.entity.order.*;
 import com.media_shop.entity.product.Product;
+import com.media_shop.repository.cart.CartRepository;
 import com.media_shop.repository.order.OrderRepository;
 import com.media_shop.repository.product.ProductRepository;
 import com.media_shop.service.OrderService;
@@ -17,32 +18,54 @@ import java.util.Optional;
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
     private ProductRepository productRepository;
 
     @Override
-    public Order placeOrder(OrderRequestDTO orderRequestDTO) {
+    public Order placeOrder(Order order, String cartId) {
         List<OrderItem> orderItems = new ArrayList<>();
-        int total = 0;
-        for (OrderRequestDTO.OrderItemDTO itemDTO : orderRequestDTO.getItems()) {
-            Optional<Product> productOpt = productRepository.findById(itemDTO.getProductId());
+        double total = 0;
+        for (OrderItem item : order.getItems()) {
+            Optional<Product> productOpt = productRepository.findById(item.getProductId());
             if (productOpt.isEmpty()) {
-                throw new RuntimeException("Product not found: " + itemDTO.getProductId());
+                throw new RuntimeException("Product not found: " + item.getProductId());
             }
             Product product = productOpt.get();
-            double price = product.getPrice() * itemDTO.getQuantity();
+            if (product.getQuantity() < item.getQuantity()) {
+                throw new RuntimeException("Not enough stock for product: " + item.getProductId());
+            }
+            // Trừ số lượng sản phẩm
+            product.setQuantity(product.getQuantity() - item.getQuantity());
+            productRepository.save(product);
+
+            double price = product.getPrice() * item.getQuantity();
             total += price;
-            orderItems.add(new OrderItem(itemDTO.getProductId(), itemDTO.getQuantity(), product.getPrice()));
+            orderItems.add(new OrderItem(item.getProductId(), item.getQuantity(), product.getPrice()));
         }
-        Order order = new Order();
-        order.setUserId(orderRequestDTO.getUserId());
-        order.setShippingAddress(orderRequestDTO.getShippingAddress());
         order.setCancellable(true);
         order.setStatus(Constants.ORDER_STATUS_PENDING);
         order.setItems(orderItems);
         order.setTotal(total);
-        return orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+
+        if (cartId != null && !cartId.isEmpty()) {
+            Optional<Cart> cartOpt = cartRepository.findById(cartId);
+            if (cartOpt.isPresent()) {
+                Cart cart = cartOpt.get();
+                List<CartItem> updatedCartItems = new ArrayList<>(cart.getListCartItem());
+                for (OrderItem orderedItem : orderItems) {
+                    updatedCartItems.removeIf(cartItem -> cartItem.getProductId().equals(orderedItem.getProductId()));
+                }
+                cart.setListCartItem(updatedCartItems);
+                cartRepository.save(cart);
+            }
+        }
+
+        return savedOrder;
     }
 }

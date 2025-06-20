@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getOrCreateCartId } from '../utils/cartId';
-import { Cart, CartItem } from '../types';
+import { CartItem } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 const CartPage: React.FC = () => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
-    
+    const [selected, setSelected] = useState<string[]>([]);
+    const navigate = useNavigate();
+
     useEffect(() => {
         const fetchCart = async () => {
             const cartId = await getOrCreateCartId();
@@ -22,6 +25,7 @@ const CartPage: React.FC = () => {
             method: 'POST',
         });
         setCartItems([]);
+        setSelected([]);
     };
 
     const handleRemoveItem = async (productId: string) => {
@@ -31,6 +35,30 @@ const CartPage: React.FC = () => {
             method: 'DELETE',
         });
         setCartItems(prevItems => prevItems.filter(item => item.product.id !== productId));
+        setSelected(prev => prev.filter(id => id !== productId));
+    };
+
+    const handleSelect = (productId: string) => {
+        setSelected(prev =>
+            prev.includes(productId)
+                ? prev.filter(id => id !== productId)
+                : [...prev, productId]
+        );
+    };
+
+    const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.checked) {
+            setSelected(cartItems.map(item => item.product.id));
+        } else {
+            setSelected([]);
+        }
+    };
+
+    const handlePlaceOrder = () => {
+        const selectedItems = cartItems.filter(item => selected.includes(item.product.id));
+        if (selectedItems.length === 0) return;
+        // Chuyển hướng sang trang order, truyền selectedItems qua state
+        navigate('/order', { state: { items: selectedItems } });
     };
 
     return (
@@ -43,6 +71,13 @@ const CartPage: React.FC = () => {
                     <table className="table">
                         <thead>
                             <tr>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        checked={selected.length === cartItems.length && cartItems.length > 0}
+                                        onChange={handleSelectAll}
+                                    />
+                                </th>
                                 <th>Image</th>
                                 <th>Title</th>
                                 <th>Quantity</th>
@@ -55,6 +90,13 @@ const CartPage: React.FC = () => {
                         <tbody>
                             {cartItems.map((item, idx) => (
                                 <tr key={idx}>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.includes(item.product.id)}
+                                            onChange={() => handleSelect(item.product.id)}
+                                        />
+                                    </td>
                                     <td>
                                         <img src={item.product.imageURL} alt={item.product.title} width={60} />
                                     </td>
@@ -88,7 +130,16 @@ const CartPage: React.FC = () => {
                             {cartItems.reduce((sum, item) =>
                                 sum + Number(item.product.price) * item.quantity, 0)}
                         </h4>
-                        <button className="btn btn-danger" onClick={handleClearCart}>Clear Cart</button>
+                        <div>
+                            <button className="btn btn-danger me-2" onClick={handleClearCart}>Clear Cart</button>
+                            <button
+                                className="btn btn-primary"
+                                disabled={selected.length === 0}
+                                onClick={handlePlaceOrder}
+                            >
+                                Place Order
+                            </button>
+                        </div>
                     </div>
                 </>
             )}

@@ -16,7 +16,10 @@ public class ProductServiceImpl implements ProductService {
     }
     @Override
     public List<Product> viewAllProduct() {
-        return productRepository.findAll();
+        return productRepository.findAll()
+                .stream()
+                .filter(product -> !product.isDeleted())
+                .toList();
     }
 
     @Override

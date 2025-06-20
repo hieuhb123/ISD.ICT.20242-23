@@ -1,12 +1,9 @@
 package com.media_shop.entity.order;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "order_items")
 public class OrderItem {
-    @Id
-    private String id;
     private String productId;
     private int quantity;
     private double price;
@@ -17,14 +14,6 @@ public class OrderItem {
         this.productId = productId;
         this.quantity = quantity;
         this.price = price;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getProductId() {
@@ -47,7 +36,8 @@ public class OrderItem {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
+
 }

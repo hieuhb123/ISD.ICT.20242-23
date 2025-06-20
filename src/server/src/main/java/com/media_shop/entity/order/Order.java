@@ -14,6 +14,7 @@ public class Order {
     private List<OrderItem> items;
     private double total;
     private String status;
+    private String createdAt;  
 
     public Order() {}
 
@@ -59,7 +60,7 @@ public class Order {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(double total) {
         this.total = total;
     }
 
@@ -75,5 +76,12 @@ public class Order {
     }
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

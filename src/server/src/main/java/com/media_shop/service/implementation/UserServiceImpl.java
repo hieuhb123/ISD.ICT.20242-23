@@ -109,6 +109,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Product addCD(String userId, CD product) {
         // Lưu CD vào database
+        product.setProductType("cd");
         CD savedCD = cdRepository.save(product);
 
         // Lấy ProductManager
@@ -126,6 +127,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Product addBook(String userId, Book product) {
+        product.setProductType("book");
         Book savedBook = bookRepository.save(product);
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {
@@ -140,6 +142,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Product addDVD(String userId, DVD product) {
+        product.setProductType("dvd");
         DVD savedDVD = dvdRepository.save(product);
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {

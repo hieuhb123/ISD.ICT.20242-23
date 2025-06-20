@@ -26,9 +26,9 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<media_shopResponse<Product>> findProduct(@PathVariable String id) {
+    public ResponseEntity<media_shopResponse<?>> findProduct(@PathVariable String id) {
         Product product = productService.viewProduct(id);
-        media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Get product successfully", product);
+        media_shopResponse<?> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Get product successfully", product);
         return ResponseEntity.ok(response);
     }
 
