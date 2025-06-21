@@ -39,13 +39,23 @@ public class VNPayController {
     }
 
     @GetMapping("/pay")
-    public ResponseEntity<media_shopResponse<String>> generateUrl(@RequestParam int amount, @RequestParam String orderId) throws IOException {
-        String result = vnpayService.generateUrl(amount, orderId);
+    public ResponseEntity<media_shopResponse<String>> generateUrl(@RequestParam String orderId) throws IOException {
+        String result = vnpayService.generateUrl(orderId);
         media_shopResponse<String> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Success", result);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/pay_return")
+    @GetMapping("/refund")
+    public ResponseEntity<media_shopResponse<RefundTransaction>> refund(@RequestBody PaymentTransaction paymentTransaction) throws IOException {
+            RefundTransaction refundTransaction = vnpayService.refund(paymentTransaction);
+            refundTransactionRepository.save(refundTransaction);
+            media_shopResponse<RefundTransaction> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Refund successfully", refundTransaction);
+            return ResponseEntity.ok(response);
+    }
+    
+
+
+        @PostMapping("/pay_return")
     public String payReturn(HttpServletRequest request, Model model) {
         // Get parameters from VNPay return URL
         String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
@@ -95,14 +105,4 @@ public class VNPayController {
             return "payment-error"; // Return error view template
         }
     }
-
-    @GetMapping("/refund")
-    public ResponseEntity<media_shopResponse<RefundTransaction>> refund(@RequestBody PaymentTransaction paymentTransaction) throws IOException {
-            RefundTransaction refundTransaction = vnpayService.refund(paymentTransaction);
-            refundTransactionRepository.save(refundTransaction);
-            media_shopResponse<RefundTransaction> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Refund successfully", refundTransaction);
-            return ResponseEntity.ok(response);
-    }
-    
-
 }

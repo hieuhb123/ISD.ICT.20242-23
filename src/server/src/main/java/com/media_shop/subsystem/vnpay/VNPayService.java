@@ -21,8 +21,8 @@ public class VNPayService {
     public VNPayService() {
     }
 
-    public String generateUrl(int amount, String orderId) throws IOException {
-        PayRequest payRequest = new PayRequest(amount, orderId);
+    public String generateUrl(String orderId) throws IOException {
+        PayRequest payRequest = new PayRequest(orderId);
         return payRequest.generateURL();
     }
 

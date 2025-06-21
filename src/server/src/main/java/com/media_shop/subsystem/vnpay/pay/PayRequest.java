@@ -1,9 +1,10 @@
 package com.media_shop.subsystem.vnpay.pay;
 
 
+import com.media_shop.entity.order.Order;
+import com.media_shop.repository.order.OrderRepository;
 import com.media_shop.subsystem.vnpay.config.VNPayConfig;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -11,16 +12,25 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Data
-@AllArgsConstructor
-public class PayRequest {
-    private int amount;
-    private String orderId;
+import org.springframework.beans.factory.annotation.Autowired;
 
+public class PayRequest {
+    @Autowired
+    private OrderRepository orderRepository;
+    private String orderId;
+    
+    public PayRequest(String orderId) {
+        this.orderId = orderId;
+    }
 
     public String generateURL() throws UnsupportedEncodingException {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        double amount = order.getTotal();
+        long amountVNPay = (long) (amount * 100L);
+
         String orderType = "other";
-        long amountVNPay = amount * 100L;
+
+        
 
         String vnp_IpAddr = VNPayConfig.getIpAddress();
 

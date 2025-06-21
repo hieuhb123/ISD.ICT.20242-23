@@ -28,8 +28,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order placeOrder(Order order, String cartId) {
+        double subtotal = 0;
+        double rushFee = 0;
+        double maxWeight = 0;
         List<OrderItem> orderItems = new ArrayList<>();
-        double total = 0;
+
+
         for (OrderItem item : order.getItems()) {
             Optional<Product> productOpt = productRepository.findById(item.getProductId());
             if (productOpt.isEmpty()) {
@@ -43,14 +47,35 @@ public class OrderServiceImpl implements OrderService {
             product.setQuantity(product.getQuantity() - item.getQuantity());
             productRepository.save(product);
 
+            if(product.getWeight() > maxWeight){
+                maxWeight = product.getWeight();
+            }
+
+            if(order.getIsRushOrder()){
+                rushFee += 10000 * item.getQuantity(); // 10k moi san pham
+            }
+
             double price = product.getPrice() * item.getQuantity();
-            total += price;
+            subtotal += price;
+
             orderItems.add(new OrderItem(item.getProductId(), product.getTitle(), product.getImageURL(),item.getQuantity(), product.getPrice()));
         }
+
+        // 10% value-added tax (VAT)
+        double vat = subtotal * 0.1;
+        double subtotalWithVat = subtotal + rushFee + vat;
+
+        double shippingFee = calculateShippingFee(maxWeight, order.getProvince(), subtotal, order.getIsRushOrder());
+
+        double finalTotal = subtotalWithVat + shippingFee + rushFee;
+
         order.setCancellable(true);
         order.setStatus(Constants.ORDER_STATUS_PENDING);
         order.setItems(orderItems);
-        order.setTotal(total);
+        order.setShippingFee(shippingFee);
+        order.setVat(vat);
+        order.setTotal(finalTotal);
+        
         Order savedOrder = orderRepository.save(order);
 
         if (cartId != null && !cartId.isEmpty()) {
@@ -80,5 +105,33 @@ public class OrderServiceImpl implements OrderService {
         .stream()
         .filter(order -> order.getUserId() != null && order.getUserId().equals(userId))
         .toList();
+    }
+
+
+    private double calculateShippingFee(double maxWeight, String province, double subtotal, boolean isRushOrder){
+        if(isRushOrder){
+            return calculateBaseShipping(maxWeight, province);
+        }
+
+        if(subtotal > 100_000){
+            return Math.min(25_000, calculateBaseShipping(maxWeight, province));
+        }
+
+        return calculateBaseShipping(maxWeight, province);
+    }
+
+    private double calculateBaseShipping(double weight, String province){
+        boolean isInnerCity = province.equalsIgnoreCase("Hanoi") || province.equalsIgnoreCase("Ho Chi Minh");
+
+        double base = isInnerCity ? 22_000 : 30_000;
+        double threshold = isInnerCity ? 3.0 : 0.5;
+
+        if(weight <= threshold) return base;
+
+        double extraWeight = weight - threshold;
+        int extraSegments = (int) Math.ceil(extraWeight / 0.5);
+
+        return base + extraSegments * 2500;
+
     }
 }
