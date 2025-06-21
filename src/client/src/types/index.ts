@@ -42,7 +42,10 @@ type CartItem = {
 
 type OrderItem = {
     productId: String;
+    title?: String;
+    imageURL: String;
     quantity: number;
+    price: number;
 };
 
 

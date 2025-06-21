@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Order } from "../types"; // Giả sử bạn đã định nghĩa kiểu Order trong types.ts
 import { getOrCreateUserId } from '../utils/userId';
+import { useNavigate } from "react-router-dom";
 
 const ViewOrder: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -46,11 +48,11 @@ const ViewOrder: React.FC = () => {
                                 <td>{order.shippingInfo}</td>
                                 <td>{order.province}</td>
                                 <td>{order.status}</td>
-                                <td>{order.total?.toLocaleString()}₫</td>
+                                <td>{order.total?.toLocaleString('vi-VN')}₫</td>
                                 <td>
                                     <button
                                         className="btn btn-sm btn-outline-primary"
-                                        onClick={() => alert(JSON.stringify(order.items, null, 2))}
+                                        onClick={() => navigate(`/order/${order.id}`)}
                                     >
                                         Xem
                                     </button>

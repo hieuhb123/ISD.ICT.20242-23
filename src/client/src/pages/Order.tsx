@@ -69,15 +69,14 @@ const OrderPage: React.FC = () => {
                                     </td>
                                     <td>{item.product.title}</td>
                                     <td>{item.quantity}</td>
-                                    <td>${item.product.price}</td>
-                                    <td>${Number(item.product.price) * item.quantity}</td>
+                                    <td>{item.product.price.toLocaleString('vi-VN')}₫</td>
+                                    <td>{(Number(item.product.price) * item.quantity).toLocaleString('vi-VN')}₫</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                     <h4>
-                        Total: $
-                        {items.reduce((sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity, 0)}
+                        Total: {(items.reduce((sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity, 0)).toLocaleString('vi-VN')}₫
                     </h4>
                     <hr />
                     <h3>Thông tin giao hàng</h3>
