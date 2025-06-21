@@ -45,7 +45,7 @@ public class OrderServiceImpl implements OrderService {
 
             double price = product.getPrice() * item.getQuantity();
             total += price;
-            orderItems.add(new OrderItem(item.getProductId(), item.getQuantity(), product.getPrice()));
+            orderItems.add(new OrderItem(item.getProductId(), product.getTitle(), product.getImageURL(),item.getQuantity(), product.getPrice()));
         }
         order.setCancellable(true);
         order.setStatus(Constants.ORDER_STATUS_PENDING);
@@ -67,5 +67,18 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return savedOrder;
+    }
+
+    @Override
+    public Order getOrderById(String orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+    }
+    @Override
+    public List<Order> getAllOrdersByUserId(String userId) {
+        return orderRepository.findAll()
+        .stream()
+        .filter(order -> order.getUserId() != null && order.getUserId().equals(userId))
+        .toList();
     }
 }

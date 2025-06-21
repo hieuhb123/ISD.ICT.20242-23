@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @NoArgsConstructor
 @Document(collection = "product")
 
-
 public class Product {
     @Id
     protected String id;
@@ -33,7 +32,7 @@ public class Product {
     protected String productType;
     protected double price;
     protected int quantity;
-    protected String weight;
+    protected double weight;
     protected String dimension;
     protected String imageURL;
     protected boolean isDeleted;
