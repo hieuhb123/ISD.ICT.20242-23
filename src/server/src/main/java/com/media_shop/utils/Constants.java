@@ -13,7 +13,7 @@ public class Constants {
 
     public final static String ORDER_STATUS_PENDING = "pending";
     public final static String ORDER_STATUS_REJECTED = "rejected";
-    public final static String ORDER_STATUS_PROCESSING = "processing";
+    public final static String ORDER_STATUS_PAID = "PAID";
     public final static String ORDER_STATUS_CANCELLED = "cancelled";
     public final static String ORDER_STATUS_DELIVERED = "delivered";
 

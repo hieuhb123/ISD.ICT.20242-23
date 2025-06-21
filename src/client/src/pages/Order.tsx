@@ -11,18 +11,21 @@ const OrderPage: React.FC = () => {
     const [shippingAddress, setShippingAddress] = useState('');
     const [receiverName, setReceiverName] = useState('');
     const [phone, setPhone] = useState('');
+    const [isRushOrder, setIsRushOrder] = useState(false); // Thêm state cho rush order
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const userId = await getOrCreateUserId();
         const cartId = await getOrCreateCartId();
         const order = {
-            userId: userId, // TODO: Lấy userId thực tế từ context hoặc localStorage
-            shippingAddress: receiverName + '|' + phone + '|' + shippingAddress,
+            userId: userId,
+            shippingInfo: receiverName + '|' + phone,
+            province: shippingAddress,
             items: items.map((item: CartItem) => ({
                 productId: item.product.id,
                 quantity: item.quantity,
             })),
+            isRushOrder, // Thêm trường này vào order
             createdAt: new Date().toISOString(),
         };
         console.log('Placing order:', order);
@@ -108,6 +111,18 @@ const OrderPage: React.FC = () => {
                                 onChange={e => setShippingAddress(e.target.value)}
                                 required
                             />
+                        </div>
+                        <div className="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                className="form-check-input"
+                                id="rushOrder"
+                                checked={isRushOrder}
+                                onChange={e => setIsRushOrder(e.target.checked)}
+                            />
+                            <label className="form-check-label" htmlFor="rushOrder">
+                                Giao hàng nhanh (Rush Order)
+                            </label>
                         </div>
                         <button type="submit" className="btn btn-primary">
                             Đặt hàng

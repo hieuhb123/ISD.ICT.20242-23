@@ -45,12 +45,20 @@ type OrderItem = {
     quantity: number;
 };
 
+
 type Order = {
-    orderId?: string; // Có thể có nếu server trả về
+    id?: string;
     userId: string;
-    shippingAddress: string;
+    shippingInfo: string;
+    province: string;
+    vat?: number;
+    shippingFee?: number;
+    cancellable?: boolean;
     items: OrderItem[];
-    createdAt?: string;  
+    total?: number;
+    status?: string;
+    isRushOrder: boolean;
+    createdAt?: string;
 };
 
 export type { MediaItem, CartItem , OrderItem, Order };

@@ -14,30 +14,38 @@ const VNPayReturn: React.FC = () => {
     const vnp_PayDate = getParam('vnp_PayDate');
     const vnp_TransactionStatus = getParam('vnp_TransactionStatus');
     
+    const [status, setStatus] = useState<string>("Đang xử lý...");
+
     useEffect(() => {
-        const res = fetch("http://localhost:8080/api/payment/save-payment-transaction", {
+        // Gửi dữ liệu về backend khi component mount
+        const vnp_Params = {
+            vnp_TxnRef: vnp_TxnRef,
+            vnp_Amount: vnp_Amount,
+            vnp_OrderInfo: vnp_OrderInfo,
+            vnp_ResponseCode: vnp_ResponseCode,
+            vnp_TransactionNo: vnp_TransactionNo,
+            vnp_TransactionStatus: vnp_TransactionStatus,
+            vnp_BankCode: vnp_BankCode,
+            vnp_PayDate: vnp_PayDate,
+        };
+        fetch('http://localhost:8080/api/payment/pay_return', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: localStorage.getItem('userId'),
-                orderId: vnp_TxnRef,
-                vnp_TxnRef: vnp_TxnRef,
-                vnp_Amount: vnp_Amount,
-                vnp_OrderInfo: vnp_OrderInfo,
-                vnp_ResponseCode: vnp_ResponseCode,
-                vnp_TransactionNo: vnp_TransactionNo,
-                vnp_BankCode: vnp_BankCode,
-                vnp_PayDate: vnp_PayDate,
-                vnp_TransactionStatus: vnp_TransactionStatus
-            }),
+            body: JSON.stringify(vnp_Params),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (vnp_ResponseCode === "00") {
+                setStatus("Thành công");
+            } else {
+                setStatus("Thất bại");
+            }
+            console.log('Kết quả lưu giao dịch:', data);
+        })
+        .catch(err => {
+            console.error('Lỗi gửi dữ liệu pay_return:', err);
         });
     }, []);
-    let status = '';
-    if (vnp_TransactionStatus === '00') {
-        status = 'Thành công';
-    } else {
-        status = 'Không thành công';
-    }
 
     return (
         <div className="container py-4">

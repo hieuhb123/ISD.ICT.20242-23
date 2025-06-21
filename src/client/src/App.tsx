@@ -7,6 +7,7 @@ import CartPage from './pages/Cart';
 import Login from './pages/Login';
 import Return from './pages/vnpay_return';
 import Order from './pages/Order';
+import ViewOrder from './pages/ViewOrder';
 const App: React.FC = () => (
   <Router>
     <Header />
@@ -17,6 +18,7 @@ const App: React.FC = () => (
       <Route path="/login" element={<Login />} />
       <Route path="/result" element={<Return />} />
       <Route path="/order" element={<Order />} />
+      <Route path="/vieworder" element={<ViewOrder />} />
       {/* Thêm các route khác nếu cần */}
     </Routes>
   </Router>

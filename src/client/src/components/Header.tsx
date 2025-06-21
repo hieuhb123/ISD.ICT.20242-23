@@ -38,6 +38,19 @@ const App: React.FC = () => {
                                     View Cart
                                 </NavLink>
                             </li>
+                            <li>
+                                <NavLink
+                                    to="/vieworder"
+                                    className={({ isActive }) =>
+                                        'nav-link text-white' + (isActive ? ' disabled opacity-50' : '')
+                                    }
+                                >
+                                    <svg className="bi d-block mx-auto mb-1" width="24" height="24" aria-hidden="true">
+                                        {/* Order icon SVG */}
+                                    </svg>
+                                    View Order
+                                </NavLink>
+                            </li>
                         </ul>
                     </div>
                 </div>
