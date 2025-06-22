@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -55,54 +56,10 @@ public class VNPayController {
     
 
 
-        @PostMapping("/pay_return")
-    public String payReturn(HttpServletRequest request, Model model) {
-        // Get parameters from VNPay return URL
-        String vnp_ResponseCode = request.getParameter("vnp_ResponseCode");
-        String orderId = request.getParameter("vnp_TxnRef"); 
-        String amount = request.getParameter("vnp_Amount");
-        String vnp_TransactionNo = request.getParameter("vnp_TransactionNo");
-        String vnp_TransactionStatus = request.getParameter("vnp_TransactionStatus");
-        String vnp_BankCode = request.getParameter("vnp_BankCode");
-        String vnp_PayDate = request.getParameter("vnp_PayDate");
-        String vnp_OrderInfo = request.getParameter("vnp_OrderInfo");
-
-        try {
-            Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
-            String userId = order.getUserId();
-            PaymentTransaction trans = new PaymentTransaction(
-                null,                         
-                userId,          
-                orderId,              
-                Long.parseLong(amount),
-                vnp_OrderInfo,         
-                vnp_ResponseCode,      
-                vnp_TransactionNo,     
-                vnp_BankCode,          
-                vnp_PayDate,           
-                vnp_TransactionStatus  
-            );
-            
-            paymentTransactionRepository.save(trans);
-
-            if ("00".equals(vnp_ResponseCode)) {
-                model.addAttribute("status", "success");
-                model.addAttribute("message", "Thanh toán thành công!");
-                model.addAttribute("orderId", orderId);
-                model.addAttribute("amount", Long.parseLong(amount)/100); // Convert from VNĐ
-                return "payment-success"; // Return success view template
-            } else {
-                model.addAttribute("status", "failed");
-                model.addAttribute("message", "Thanh toán thất bại!");
-                model.addAttribute("orderId", orderId);
-                return "payment-failed"; // Return failed view template
-            }
-
-        } catch (Exception e) {
-            model.addAttribute("status", "error");
-            model.addAttribute("message", "Có lỗi xảy ra: " + e.getMessage());
-            return "payment-error"; // Return error view template
-        }
+    @PostMapping("/pay_return")
+    public ResponseEntity<media_shopResponse<PaymentTransaction>> payReturn(@RequestBody Map<String, String> request) {
+        PaymentTransaction paymentTransaction = vnpayService.responseToPaymentTransaction(request);
+        media_shopResponse<PaymentTransaction> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Refund successfully", paymentTransaction);
+        return ResponseEntity.ok(response);
     }
 }

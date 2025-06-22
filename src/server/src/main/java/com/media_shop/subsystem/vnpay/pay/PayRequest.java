@@ -4,7 +4,6 @@ package com.media_shop.subsystem.vnpay.pay;
 import com.media_shop.entity.order.Order;
 import com.media_shop.repository.order.OrderRepository;
 import com.media_shop.subsystem.vnpay.config.VNPayConfig;
-import lombok.AllArgsConstructor;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -12,14 +11,12 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class PayRequest {
-    @Autowired
-    private OrderRepository orderRepository;
-    private String orderId;
-    
-    public PayRequest(String orderId) {
+    private final OrderRepository orderRepository;
+    private final String orderId;
+
+    public PayRequest(OrderRepository orderRepository, String orderId) {
+        this.orderRepository = orderRepository;
         this.orderId = orderId;
     }
 

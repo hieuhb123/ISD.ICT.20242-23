@@ -68,7 +68,9 @@ const Home: React.FC = () => {
                                 </div>
                                 <div className="d-flex flex-column align-items-star card-body">
                                     <h5 className="card-title mb-auto" style={{ cursor: 'pointer' }} onClick={() => handleCardClick(item.id)}>{item.title}</h5>
-                                    <p className="mt-3 mb-1 card-text">${item.price}</p>
+                                    <p className="mt-3 mb-1 card-text">
+                                        {item.price.toLocaleString('vi-VN')} ₫
+                                    </p>
                                     <div className="justify-content-between">
                                         <button type="button" className="btn btn-outline-secondary" onClick={() => handleAddToCart(item.id)}>
                                             ADD TO CART

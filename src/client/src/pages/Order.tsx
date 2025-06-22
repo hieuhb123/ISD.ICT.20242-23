@@ -11,18 +11,21 @@ const OrderPage: React.FC = () => {
     const [shippingAddress, setShippingAddress] = useState('');
     const [receiverName, setReceiverName] = useState('');
     const [phone, setPhone] = useState('');
+    const [isRushOrder, setIsRushOrder] = useState(false); // Thêm state cho rush order
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const userId = await getOrCreateUserId();
         const cartId = await getOrCreateCartId();
         const order = {
-            userId: userId, // TODO: Lấy userId thực tế từ context hoặc localStorage
-            shippingAddress: receiverName + '|' + phone + '|' + shippingAddress,
+            userId: userId,
+            shippingInfo: receiverName + '|' + phone,
+            province: shippingAddress,
             items: items.map((item: CartItem) => ({
                 productId: item.product.id,
                 quantity: item.quantity,
             })),
+            isRushOrder, // Thêm trường này vào order
             createdAt: new Date().toISOString(),
         };
         console.log('Placing order:', order);
@@ -66,15 +69,14 @@ const OrderPage: React.FC = () => {
                                     </td>
                                     <td>{item.product.title}</td>
                                     <td>{item.quantity}</td>
-                                    <td>${item.product.price}</td>
-                                    <td>${Number(item.product.price) * item.quantity}</td>
+                                    <td>{item.product.price.toLocaleString('vi-VN')}₫</td>
+                                    <td>{(Number(item.product.price) * item.quantity).toLocaleString('vi-VN')}₫</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                     <h4>
-                        Total: $
-                        {items.reduce((sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity, 0)}
+                        Total: {(items.reduce((sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity, 0)).toLocaleString('vi-VN')}₫
                     </h4>
                     <hr />
                     <h3>Thông tin giao hàng</h3>
@@ -108,6 +110,18 @@ const OrderPage: React.FC = () => {
                                 onChange={e => setShippingAddress(e.target.value)}
                                 required
                             />
+                        </div>
+                        <div className="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                className="form-check-input"
+                                id="rushOrder"
+                                checked={isRushOrder}
+                                onChange={e => setIsRushOrder(e.target.checked)}
+                            />
+                            <label className="form-check-label" htmlFor="rushOrder">
+                                Giao hàng nhanh (Rush Order)
+                            </label>
                         </div>
                         <button type="submit" className="btn btn-primary">
                             Đặt hàng

@@ -1,28 +1,39 @@
 package com.media_shop.subsystem.vnpay;
 
 import com.google.gson.Gson;
+import com.media_shop.entity.order.Order;
 import com.media_shop.entity.payment.PaymentTransaction;
 import com.media_shop.entity.payment.RefundTransaction;
 import com.media_shop.exception.pay.*;
+import com.media_shop.repository.order.OrderRepository;
+import com.media_shop.repository.transaction.PaymentTransactionRepository;
 import com.media_shop.subsystem.vnpay.pay.*;
 import com.media_shop.subsystem.vnpay.refund.RefundRequest;
 import com.media_shop.subsystem.vnpay.refund.RefundResponse;
+import com.media_shop.utils.Constants;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class VNPayService {
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private PaymentTransactionRepository paymentTransactionRepository;
 
     public VNPayService() {
     }
 
+
+
     public String generateUrl(String orderId) throws IOException {
-        PayRequest payRequest = new PayRequest(orderId);
+        PayRequest payRequest = new PayRequest(orderRepository, orderId);
         return payRequest.generateURL();
     }
 
@@ -60,29 +71,40 @@ public class VNPayService {
             default:
                 throw new RuntimeException();
         }
-        String userId = response.get("userId");
-        String transactionId = response.get("vnp_TransactionNo");
-        String transactionContent = response.get("vnp_OrderInfo");
-        long amount = Integer.parseInt(response.get("vnp_Amount")) / 100;
-        String createdAt = response.get("vnp_PayDate");
-        String vnpTxnRef = response.get("vnp_TxnRef");
-        String vnpRecode = response.get("vnp_ResponseCode");
-        String vnpBankCode = response.get("vnp_BankCode");
-        String vnpTransactionStatus = response.get("vnp_TransactionStatus");
-        PaymentTransaction trans = new PaymentTransaction(
-            null,
-            userId, 
-            vnpTxnRef, 
-            amount, 
-            transactionContent, 
-            vnpRecode, 
-            transactionId,
-            vnpBankCode, 
-            createdAt, 
-            vnpTransactionStatus);
-        
-        return trans;
-    }
+        // Get parameters from VNPay return URL
+        String vnp_ResponseCode = response.get("vnp_ResponseCode");
+        String orderId = response.get("vnp_TxnRef"); 
+        String amount = response.get("vnp_Amount");
+        String vnp_TransactionNo = response.get("vnp_TransactionNo");
+        String vnp_TransactionStatus = response.get("vnp_TransactionStatus");
+        String vnp_BankCode = response.get("vnp_BankCode");
+        String vnp_PayDate = response.get("vnp_PayDate");
+        String vnp_OrderInfo = response.get("vnp_OrderInfo");
 
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+        if ("00".equals(vnp_ResponseCode)) {
+            order.setStatus(Constants.ORDER_STATUS_PAID);
+            orderRepository.save(order);
+        }
+        String userId = order.getUserId();
+        PaymentTransaction trans = new PaymentTransaction(
+            null,                         
+            userId,          
+            orderId,              
+            Long.parseLong(amount),
+            vnp_OrderInfo,         
+            vnp_ResponseCode,      
+            vnp_TransactionNo,     
+            vnp_BankCode,          
+            vnp_PayDate,           
+            vnp_TransactionStatus  
+        );
+        
+        paymentTransactionRepository.save(trans);
+
+        return trans;
+
+    }
 
 }

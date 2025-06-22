@@ -102,8 +102,8 @@ const CartPage: React.FC = () => {
                                     </td>
                                     <td>{item.product.title}</td>
                                     <td>{item.quantity}</td>
-                                    <td>${item.product.price}</td>
-                                    <td>${Number(item.product.price) * item.quantity}</td>
+                                    <td>{item.product.price.toLocaleString('vi-VN')}₫</td>
+                                    <td>{(Number(item.product.price) * item.quantity).toLocaleString('vi-VN')}₫</td>
                                     <td>
                                         {item.statusCode === 2
                                             ? <span className="badge bg-danger">Đã xóa</span>
@@ -126,9 +126,8 @@ const CartPage: React.FC = () => {
                     </table>
                     <div className="d-flex justify-content-between align-items-center">
                         <h4>
-                            Total: $
-                            {cartItems.reduce((sum, item) =>
-                                sum + Number(item.product.price) * item.quantity, 0)}
+                            Total: {(cartItems.reduce((sum, item) =>
+                                sum + Number(item.product.price) * item.quantity, 0)).toLocaleString('vi-VN')}₫
                         </h4>
                         <div>
                             <button className="btn btn-danger me-2" onClick={handleClearCart}>Clear Cart</button>

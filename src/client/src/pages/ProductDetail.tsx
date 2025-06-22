@@ -64,7 +64,7 @@ const ProductDetail: React.FC = () => {
                 <div className="col-md-7">
                     <h3>{item.title}</h3>
                     <div className="mb-2">
-                        <span className="fs-4 text-danger fw-bold">{item.price}₫</span>
+                        <span className="fs-4 text-danger fw-bold">{item.price.toLocaleString('vi-VN')}₫</span>
                         {/* <span className="text-muted ms-2"><del>Giá gốc</del></span> */}
                     </div>
                     <div className="mb-2">
