@@ -9,6 +9,9 @@ import Return from './pages/vnpay_return';
 import Order from './pages/Order';
 import ViewOrder from './pages/ViewOrder';
 import OrderDetail from './pages/OrderDetail';
+import AddProduct from './pages/AddProduct';
+import ListProduct from './pages/ListProduct';
+import UpdateProduct from './pages/UpdateProduct';
 const App: React.FC = () => (
   <Router>
     <Header />
@@ -20,6 +23,9 @@ const App: React.FC = () => (
       <Route path="/result" element={<Return />} />
       <Route path="/order" element={<Order />} />
       <Route path="/vieworder" element={<ViewOrder />} />
+      <Route path="/list-product" element={<ListProduct />} />
+      <Route path="add-product" element={<AddProduct />} />
+      <Route path="/update-product/:id" element={<UpdateProduct />} />
       <Route path="/order/:orderId" element={<OrderDetail />} />
       {/* Thêm các route khác nếu cần */}
     </Routes>

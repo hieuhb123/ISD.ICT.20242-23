@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
     private final BookRepository bookRepository;
     private final ProductRepository productRepository;
     public UserServiceImpl(ProductManagerRepository userRepository, CDRepository cdRepository,
-                              DVDRepository dvdRepository, BookRepository bookRepository, ProductRepository productRepository) {
+                            DVDRepository dvdRepository, BookRepository bookRepository, ProductRepository productRepository) {
         this.userRepository = userRepository;
         this.cdRepository = cdRepository;
         this.dvdRepository = dvdRepository;
@@ -242,6 +242,11 @@ public class UserServiceImpl implements UserService {
         Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("secure_url");
         return imageUrl;
+    }
+    @Override
+    public Product getProductById(String id) {
+        return productRepository.findById(id).orElseThrow(() 
+            -> new ProductNotFoundException("Product not found"));
     }
 
 }

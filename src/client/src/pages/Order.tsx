@@ -1,136 +1,228 @@
-import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
-import { CartItem } from '../types';
-import { getOrCreateUserId } from '../utils/userId';
-import { getOrCreateCartId } from '../utils/cartId';
+// src/components/UpdateProduct.tsx
 
-const OrderPage: React.FC = () => {
-    const location = useLocation();
-    const items = location.state?.items || [];
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { MediaItem } from '../types'; // Vẫn import Type từ file chung
 
-    const [shippingAddress, setShippingAddress] = useState('');
-    const [receiverName, setReceiverName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [isRushOrder, setIsRushOrder] = useState(false); // Thêm state cho rush order
+// =================================================================
+// SECTION 1: API LOGIC (Gộp từ file productApi.ts vào đây)
+// =================================================================
+
+
+// Kiểu dữ liệu cho response từ backend
+type MediaShopResponse<T> = {
+    code: number;
+    message: string;
+    data?: T;
+};
+
+// Hàm xử lý response chung từ API
+async function handleResponse<T>(response: Response): Promise<T> {
+    const json: MediaShopResponse<T> = await response.json();
+    if (!response.ok || json.code !== 200) { // Giả sử SUCCESS_CODE là 200
+        throw new Error(json.message || 'Đã có lỗi xảy ra từ server');
+    }
+    if (!json.data) {
+        throw new Error('Không có dữ liệu trả về từ API.');
+    }
+    return json.data;
+}
+
+/**
+ * Lấy thông tin chi tiết sản phẩm bằng ID.
+ * @param id ID của sản phẩm
+ */
+const getProductById = async (id: string): Promise<MediaItem> => {
+    const response = await fetch(`${API_BASE_URL}/${id}`);
+    return handleResponse<MediaItem>(response);
+};
+
+/**
+ * Cập nhật thông tin sản phẩm (trừ giá).
+ * @param id ID của sản phẩm
+ * @param productData Dữ liệu sản phẩm để cập nhật
+ */
+const updateProductDetails = async (id: string, productData: MediaItem): Promise<MediaItem> => {
+    const type = productData.productType.toLowerCase(); // 'book', 'cd', 'dvd'
+    const endpoint = `${API_BASE_URL}/update-${type}/${id}`;
+
+    const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData),
+    });
+    return handleResponse<MediaItem>(response);
+};
+
+/**
+ * Cập nhật chỉ giá của sản phẩm.
+ * @param id ID của sản phẩm
+ * @param newPrice Giá mới
+ */
+const updateProductPrice = async (id: string, newPrice: number): Promise<MediaItem> => {
+    const response = await fetch(`${API_BASE_URL}/update-price/${id}?newPrice=${newPrice}`, {
+        method: 'PUT',
+    });
+    return handleResponse<MediaItem>(response);
+};
+
+
+// =================================================================
+// SECTION 2: REACT COMPONENT
+// =================================================================
+
+const UpdateProduct: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+
+    const [formData, setFormData] = useState<MediaItem | null>(null);
+    const [originalData, setOriginalData] = useState<MediaItem | null>(null);
+    
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
+
+    // useEffect để fetch dữ liệu sản phẩm, sử dụng hàm getProductById đã định nghĩa ở trên
+    useEffect(() => {
+        if (!id) {
+            setError("ID sản phẩm không hợp lệ.");
+            setIsLoading(false);
+            return;
+        }
+
+        const fetchProduct = async () => {
+            try {
+                const productData = await getProductById(id);
+                setFormData(productData); 
+                setOriginalData(productData);
+            } catch (err: any) {
+                setError(err.message || "Không thể tải dữ liệu sản phẩm.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProduct();
+    }, [id]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value, type } = e.target;
+        const parsedValue = type === 'checkbox' && e.target instanceof HTMLInputElement 
+            ? e.target.checked 
+            : value;
+        setFormData(prev => prev ? { ...prev, [name]: parsedValue } : null);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const userId = await getOrCreateUserId();
-        const cartId = await getOrCreateCartId();
-        const order = {
-            userId: userId,
-            shippingInfo: receiverName + '|' + phone,
-            province: shippingAddress,
-            items: items.map((item: CartItem) => ({
-                productId: item.product.id,
-                quantity: item.quantity,
-            })),
-            isRushOrder, // Thêm trường này vào order
-            createdAt: new Date().toISOString(),
-        };
-        console.log('Placing order:', order);
+        if (!id || !formData || !originalData) return;
 
-        const res = await fetch(`http://localhost:8080/api/orders/place?cartId=${cartId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(order)
-        });
+        setIsLoading(true);
+        setError(null);
+        setSuccess(null);
 
-        if (res.ok) {
-            const data = await res.json();
-            alert('Đặt hàng thành công! Mã đơn: ' + (data.id || ''));
-        } else {
-            alert('Đặt hàng thất bại!');
+        try {
+            const priceHasChanged = formData.price !== originalData.price;
+            if (priceHasChanged) {
+                const newPrice = parseInt(String(formData.price), 10);
+                if (isNaN(newPrice)) throw new Error("Giá không hợp lệ.");
+                // Gọi hàm updateProductPrice đã định nghĩa ở trên
+                await updateProductPrice(id, newPrice);
+            }
+            
+            // Gọi hàm updateProductDetails đã định nghĩa ở trên
+            const finalUpdatedProduct = await updateProductDetails(id, formData);
+
+            setFormData(finalUpdatedProduct);
+            setOriginalData(finalUpdatedProduct);
+            setSuccess("Cập nhật sản phẩm thành công!");
+            setTimeout(() => navigate('/admin/products'), 2000);
+
+        } catch (err: any) {
+            setError(err.message || "Cập nhật thất bại. Vui lòng thử lại.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const renderSpecificFields = () => {
+        if (!formData) return null;
+        switch (formData.productType) {
+            case 'BOOK':
+                return (
+                    <>
+                        <input name="author" value={formData.author || ''} onChange={handleChange} placeholder="Author" className="form-control mb-2" />
+                        <input name="publisher" value={formData.publisher || ''} onChange={handleChange} placeholder="Publisher" className="form-control mb-2" />
+                        <input type="date" name="publishDate" value={formData.publishDate?.split('T')[0] || ''} onChange={handleChange} className="form-control mb-2" />
+                        <input type="number" name="numOfPages" value={formData.numOfPages || ''} onChange={handleChange} placeholder="Number of Pages" className="form-control mb-2" />
+                    </>
+                );
+            case 'CD':
+                return (
+                    <>
+                        <input name="artist" value={formData.artist || ''} onChange={handleChange} placeholder="Artist" className="form-control mb-2" />
+                        <input name="recordLabel" value={formData.recordLabel || ''} onChange={handleChange} placeholder="Record Label" className="form-control mb-2" />
+                    </>
+                );
+            case 'DVD':
+                return (
+                    <>
+                        <input name="director" value={formData.director || ''} onChange={handleChange} placeholder="Director" className="form-control mb-2" />
+                        <input name="duration" value={formData.duration || ''} onChange={handleChange} placeholder="Duration (minutes)" className="form-control mb-2" />
+                    </>
+                );
+            default: return null;
         }
     };
 
+    if (isLoading) return <div className="container mt-4"><h2>Đang tải...</h2></div>;
+    if (error) return <div className="container mt-4"><div className="alert alert-danger">{error}</div></div>;
+    if (!formData) return <div className="container mt-4"><h2>Không tìm thấy sản phẩm.</h2></div>;
+
     return (
-        <div className="container py-4">
-            <h2>Order Summary</h2>
-            {items.length === 0 ? (
-                <p>No items selected for order.</p>
-            ) : (
-                <>
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Title</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {items.map((item: CartItem) => (
-                                <tr key={item.product.id}>
-                                    <td>
-                                        <img src={item.product.imageURL} alt={item.product.title} width={60} />
-                                    </td>
-                                    <td>{item.product.title}</td>
-                                    <td>{item.quantity}</td>
-                                    <td>{item.product.price.toLocaleString('vi-VN')}₫</td>
-                                    <td>{(Number(item.product.price) * item.quantity).toLocaleString('vi-VN')}₫</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    <h4>
-                        Total: {(items.reduce((sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity, 0)).toLocaleString('vi-VN')}₫
-                    </h4>
-                    <hr />
-                    <h3>Thông tin giao hàng</h3>
-                    <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
-                        <div className="mb-3">
-                            <label className="form-label">Tên người nhận</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={receiverName}
-                                onChange={e => setReceiverName(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Số điện thoại</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={phone}
-                                onChange={e => setPhone(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Địa chỉ giao hàng</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={shippingAddress}
-                                onChange={e => setShippingAddress(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3 form-check">
-                            <input
-                                type="checkbox"
-                                className="form-check-input"
-                                id="rushOrder"
-                                checked={isRushOrder}
-                                onChange={e => setIsRushOrder(e.target.checked)}
-                            />
-                            <label className="form-check-label" htmlFor="rushOrder">
-                                Giao hàng nhanh (Rush Order)
-                            </label>
-                        </div>
-                        <button type="submit" className="btn btn-primary">
-                            Đặt hàng
-                        </button>
-                    </form>
-                </>
-            )}
+        <div className="container mt-4">
+            <h2>Chỉnh sửa sản phẩm: {originalData?.title}</h2>
+            <p><strong>Loại sản phẩm:</strong> {formData.productType}</p>
+            
+            {success && <div className="alert alert-success">{success}</div>}
+
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                    <label className="form-label">Tiêu đề</label>
+                    <input name="title" value={formData.title} onChange={handleChange} className="form-control" required />
+                </div>
+                
+                <div className="mb-3">
+                    <label className="form-label">Giá</label>
+                    <input type="number" name="price" value={formData.price} onChange={handleChange} className="form-control" required />
+                </div>
+
+                <div className="mb-3">
+                    <label className="form-label">Mô tả</label>
+                    <textarea name="description" value={formData.description || ''} onChange={handleChange} className="form-control" rows={4} />
+                </div>
+                
+                <div className="mb-3">
+                    <label className="form-label">Số lượng</label>
+                    <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" />
+                </div>
+                
+                <div className="form-check mb-3">
+                    <input type="checkbox" name="rushDeliverySupport" checked={formData.rushDeliverySupport} onChange={handleChange} className="form-check-input" />
+                    <label className="form-check-label">Hỗ trợ giao hàng hỏa tốc</label>
+                </div>
+
+                <hr />
+                <h4>Thông tin chi tiết</h4>
+                {renderSpecificFields()}
+                <hr />
+
+                <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                    {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </button>
+            </form>
         </div>
     );
 };
 
-export default OrderPage;
+export default UpdateProduct;

@@ -142,6 +142,19 @@ public class ProductManagerController {
 
     @PutMapping("/update-price/{id}")
     public ResponseEntity<media_shopResponse<Product>> updatePrice(@PathVariable String id, @RequestParam int newPrice) {
+        Product currentProduct = userService.getProductById(id);
+        if (currentProduct == null) {
+            media_shopResponse<Product> response = new media_shopResponse<>(Constants.ERROR_CODE, "Product not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        double oldPrice = currentProduct.getPrice();
+        double minPrice = Math.ceil(oldPrice * 0.3);
+        double maxPrice = Math.floor(oldPrice * 1.5);
+        if (newPrice < minPrice || newPrice > maxPrice) {
+            String message = String.format("New price must be between %d%% and %d%% of the previous price (%.0f - %.0f)", 30, 150, minPrice, maxPrice);
+            media_shopResponse<Product> response = new media_shopResponse<>(Constants.ERROR_CODE, message);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
         Product newProduct = userService.updatePrice(id, newPrice);
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Update price successfully", newProduct);
         return ResponseEntity.ok(response);
