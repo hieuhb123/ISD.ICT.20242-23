@@ -7,7 +7,8 @@ import { MediaItem } from '../types'; // Vẫn import Type từ file chung
 // =================================================================
 // SECTION 1: API LOGIC (Gộp từ file productApi.ts vào đây)
 // =================================================================
-
+// URL cơ sở của API backend
+const API_BASE_URL = 'http://localhost:8080/api/product'; // Thay đổi
 
 // Kiểu dữ liệu cho response từ backend
 type MediaShopResponse<T> = {
