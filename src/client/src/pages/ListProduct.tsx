@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MediaItem } from '../types';
-import { useAuth } from '../contexts/AuthContext'; // BƯỚC 1: Import hook useAuth
+import { useAuth } from '../contexts/AuthContext';
 
 // API LOGIC (Giữ nguyên)
 const API_BASE_URL = 'http://localhost:8080/api/product';
@@ -26,15 +26,12 @@ const getAllProducts = (): Promise<MediaItem[]> => {
 
 // REACT COMPONENT
 const ProductList: React.FC = () => {
-    // BƯỚC 2: Lấy thông tin người dùng từ Context
-    const { currentUser } = useAuth(); 
-
+    const { currentUser } = useAuth();
     const [products, setProducts] = useState<MediaItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // Chỉ fetch dữ liệu nếu người dùng đã đăng nhập
         if (currentUser) {
             const fetchProducts = async () => {
                 try {
@@ -48,12 +45,10 @@ const ProductList: React.FC = () => {
             };
             fetchProducts();
         } else {
-            // Nếu chưa đăng nhập, không cần tải dữ liệu
             setIsLoading(false);
         }
-    }, [currentUser]); // Thêm currentUser vào dependency array
+    }, [currentUser]);
 
-    // BƯỚC 3: Kiểm tra quyền truy cập trước khi hiển thị nội dung
     if (!currentUser || currentUser.role !== 'Product Manager') {
         return (
             <div className="container mt-5">
@@ -65,7 +60,6 @@ const ProductList: React.FC = () => {
         );
     }
 
-    // Phần hiển thị cho người dùng đã đăng nhập
     if (isLoading) return <div className="container mt-4"><h2>Đang tải...</h2></div>;
     if (error) return <div className="container mt-4"><div className="alert alert-danger">{error}</div></div>;
 
@@ -96,13 +90,21 @@ const ProductList: React.FC = () => {
                             product && product.id && (
                                 <tr key={product.id}>
                                     <td>
-                                        <img 
-                                            src={product.imageURL || 'https://via.placeholder.com/60'}
-                                            alt={product.title || 'Sản phẩm'} 
-                                            style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
-                                        />
+                                        {/* THAY ĐỔI: Bọc hình ảnh trong một Link đến trang chi tiết */}
+                                        <Link to={`/product/${product.id}`}>
+                                            <img
+                                                src={product.imageURL || 'https://via.placeholder.com/60'}
+                                                alt={product.title || 'Sản phẩm'}
+                                                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
+                                            />
+                                        </Link>
                                     </td>
-                                    <td className="fw-bold">{product.title || 'Không có tiêu đề'}</td>
+                                    <td className="fw-bold">
+                                        {/* THAY ĐỔI: Bọc tiêu đề trong một Link đến trang chi tiết */}
+                                        <Link to={`/product/${product.id}`} className="text-dark text-decoration-none">
+                                            {product.title || 'Không có tiêu đề'}
+                                        </Link>
+                                    </td>
                                     <td>
                                         <span className="badge bg-secondary">
                                             {(product.productType || 'N/A').toUpperCase()}
@@ -110,8 +112,8 @@ const ProductList: React.FC = () => {
                                     </td>
                                     <td>{Number(product.price || 0).toLocaleString('vi-VN')} đ</td>
                                     <td className="text-center">
-                                        <Link 
-                                            to={`/api/ProductManager/update-product/${product.id}`} 
+                                        <Link
+                                            to={`/api/ProductManager/update-product/${product.id}`}
                                             className="btn btn-primary btn-sm"
                                         >
                                             Cập nhật
