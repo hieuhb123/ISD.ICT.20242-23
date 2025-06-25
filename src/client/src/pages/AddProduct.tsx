@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Thêm useNavigate để điều hướng sau khi thành công
+// === BƯỚC 1: IMPORT USEEFFECT VÀ USEREF ===
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MediaItem } from '../types';
-// === BƯỚC 1: IMPORT USEAUTH ===
 import { useAuth } from '../contexts/AuthContext';
 
 const initialFormState: Partial<MediaItem> = {
@@ -31,17 +31,26 @@ const initialFormState: Partial<MediaItem> = {
 };
 
 const AddProduct: React.FC = () => {
-    // === BƯỚC 2: LẤY CURRENTUSER TỪ CONTEXT ===
     const { currentUser } = useAuth(); 
-    const navigate = useNavigate(); // Hook để điều hướng
+    const navigate = useNavigate();
 
     const [productType, setProductType] = useState<'cd' | 'book' | 'dvd'>('cd');
     const [formData, setFormData] = useState<Partial<MediaItem>>(initialFormState);
-    // === BƯỚC 3: XÓA STATE CỤC BỘ CỦA USERID ===
-    // const [userId, setUserId] = useState(''); // Không cần dòng này nữa
     const [imageFile, setImageFile] = useState<File | null>(null);
-    const [isLoading, setIsLoading] = useState(false); // Thêm state cho loading
-    const [error, setError] = useState(''); // Thêm state cho lỗi
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    // === BƯỚC 2: KHỞI TẠO REF ĐỂ THEO DÕI TRẠNG THÁI MOUNT ===
+    const isMounted = useRef(false);
+
+    // === BƯỚC 3: SỬ DỤNG USEEFFECT ĐỂ CẬP NHẬT REF KHI COMPONENT MOUNT/UNMOUNT ===
+    useEffect(() => {
+        isMounted.current = true; // Đánh dấu là component đã mount
+        return () => {
+            // Hàm cleanup này sẽ chạy khi component bị unmount
+            isMounted.current = false; // Đánh dấu là component đã unmount
+        };
+    }, []); // Mảng rỗng đảm bảo effect chỉ chạy 1 lần khi mount và cleanup khi unmount
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -66,10 +75,10 @@ const AddProduct: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Các lệnh setState ở đây an toàn vì chúng chạy đồng bộ trước khi có await
         setError('');
         setIsLoading(true);
 
-        // === BƯỚC 4: SỬ DỤNG CURRENTUSER.ID THAY VÌ STATE CỤC BỘ ===
         if (!currentUser?.id) {
             setError('Không tìm thấy thông tin người quản lý. Vui lòng đăng nhập lại.');
             setIsLoading(false);
@@ -94,31 +103,45 @@ const AddProduct: React.FC = () => {
         submissionFormData.append('image', imageFile);
 
         try {
-            // Sử dụng currentUser.id trong URL
             const url = `http://localhost:8080/api/ProductManager/add-${productType}?userId=${encodeURIComponent(currentUser.id)}`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: submissionFormData,
             });
 
+            // Sau khi `await`, component có thể đã bị unmount.
+            // Vì vậy, tất cả các lệnh cập nhật state từ đây trở đi cần được kiểm tra.
+
             if (response.ok) {
                 alert('Thêm sản phẩm thành công!');
-                // Điều hướng về trang danh sách sản phẩm
+                // Lệnh navigate() sẽ khiến component bị unmount.
+                // Mọi lệnh setState sau lệnh này chắc chắn sẽ gây ra warning nếu không được kiểm tra.
                 navigate('/api/ProductManager/list-product');
             } else {
                 const errorData = await response.json();
-                setError(`Thêm sản phẩm thất bại: ${errorData.message || 'Lỗi không xác định'}`);
+                // === BƯỚC 4: KIỂM TRA isMounted TRƯỚC KHI CẬP NHẬT STATE LỖI ===
+                if (isMounted.current) {
+                    setError(`Thêm sản phẩm thất bại: ${errorData.message || 'Lỗi không xác định'}`);
+                }
             }
         } catch (err) {
             console.error(err);
-            setError('Đã có lỗi xảy ra khi thêm sản phẩm.');
+            // === BƯỚC 4: KIỂM TRA isMounted TRƯỚC KHI CẬP NHẬT STATE LỖI ===
+            if (isMounted.current) {
+                setError('Đã có lỗi xảy ra khi thêm sản phẩm.');
+            }
         } finally {
-            setIsLoading(false);
+            // === BƯỚC 4: KIỂM TRA isMounted TRƯỚC KHI CẬP NHẬT STATE LOADING ===
+            // Đây là nơi quan trọng nhất gây ra warning, vì nó luôn chạy sau khi request kết thúc,
+            // kể cả khi đã navigate() thành công.
+            if (isMounted.current) {
+                setIsLoading(false);
+            }
         }
     };
 
-    // Phần render các trường riêng cho từng loại sản phẩm (giữ nguyên)
     const renderSpecificFields = () => {
+        // ... (Nội dung hàm này không thay đổi)
         switch (productType) {
             case 'cd':
                 return (
@@ -161,9 +184,6 @@ const AddProduct: React.FC = () => {
         <div className="container mt-4">
             <h2>Add New Product</h2>
             <form onSubmit={handleSubmit}>
-                {/* === BƯỚC 5: XÓA TRƯỜNG INPUT USERID KHỎI FORM === */}
-                {/* <input name="userId" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="Manager User ID" className="form-control mb-3" required /> */}
-                
                 <select name="productType" value={productType} onChange={handleTypeChange} className="form-select mb-3" disabled={isLoading}>
                     <option value="cd">CD</option>
                     <option value="book">Book</option>
@@ -172,7 +192,13 @@ const AddProduct: React.FC = () => {
 
                 <input name="title" value={formData.title || ''} onChange={handleChange} placeholder="Product Title" className="form-control mb-2" required disabled={isLoading} />
                 <input type="number" name="price" value={formData.price || ''} onChange={handleChange} placeholder="Price" className="form-control mb-2" required disabled={isLoading}/>
-                {/* ... các trường input khác ... */}
+                <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder="Description" className="form-control mb-2" disabled={isLoading}/>
+                <input type="number" name="quantity" value={formData.quantity || 1} onChange={handleChange} placeholder="Quantity" className="form-control mb-2" disabled={isLoading}/>
+                <input name="weight" value={formData.weight || ''} onChange={handleChange} placeholder="Weight" className="form-control mb-2" disabled={isLoading}/>
+                <div className="form-check mb-2">
+                    <input id="rushDeliverySupport" className="form-check-input" type="checkbox" name="rushDeliverySupport" checked={formData.rushDeliverySupport || false} onChange={handleChange} disabled={isLoading}/>
+                    <label htmlFor="rushDeliverySupport" className="form-check-label">Rush Delivery Support</label>
+                </div>
                 
                 <div className="mt-3 mb-3">
                     <label>Product Image</label>
