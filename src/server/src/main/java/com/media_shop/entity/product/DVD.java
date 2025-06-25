@@ -2,21 +2,22 @@ package com.media_shop.entity.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
-@Document(collection = "product")
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-
+@AllArgsConstructor
+@Document(collection = "product")
 public class DVD extends Product {
-    String discType;
-    String director;
-    String duration;
-    String language;
-    String subtitles;
-    Date releasedDate;
-    String filmType;
+    private String discType;
+    private String director;
+    private String duration;
+    private String language;
+    private String subtitles;
+    private Date releasedDate;
+    private String filmType;
 }

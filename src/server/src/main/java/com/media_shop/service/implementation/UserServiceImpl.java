@@ -27,8 +27,9 @@ public class UserServiceImpl implements UserService {
     private final DVDRepository dvdRepository;
     private final BookRepository bookRepository;
     private final ProductRepository productRepository;
+
     public UserServiceImpl(ProductManagerRepository userRepository, CDRepository cdRepository,
-                            DVDRepository dvdRepository, BookRepository bookRepository, ProductRepository productRepository) {
+                           DVDRepository dvdRepository, BookRepository bookRepository, ProductRepository productRepository) {
         this.userRepository = userRepository;
         this.cdRepository = cdRepository;
         this.dvdRepository = dvdRepository;
@@ -38,43 +39,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ProductManager createUser(String username, String password) {
-        ProductManager existedUser = userRepository.findAll().stream()
+        userRepository.findAll().stream()
                 .filter(u -> u.getUsername().equals(username))
                 .findFirst()
-                .orElse(null);
-        if (existedUser != null) {
-            throw new UserExistedException("User existed in the system");
-        } else {
-            ProductManager user = new ProductManager();
-            user.setUsername(username);
-            user.setPassword(password);
-            user.setBlockStatus(false);
-            return userRepository.save(user);
-        }
+                .ifPresent(u -> {
+                    throw new UserExistedException("User existed in the system");
+                });
+
+        ProductManager user = new ProductManager();
+        user.setUsername(username);
+        user.setPassword(password); // Note: In a real app, you should hash the password
+        user.setBlockStatus(false);
+        return userRepository.save(user);
     }
 
     @Override
     public void deleteUser(String userId) {
-        ProductManager user = userRepository.findById(userId).orElse(null);
-        if (user != null) {
-            userRepository.delete(user);
-        } else {
-            throw new UserNotFoundException("User not found");
-        }
+        ProductManager user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        userRepository.delete(user);
     }
 
     @Override
     public ProductManager changePassword(String userId, String currentPassword, String newPassword) {
-        ProductManager user = userRepository.findById(userId).orElse(null);
-        if (user != null) {
-            if (user.getPassword().equals(currentPassword)) {
-                user.setPassword(newPassword);
-                return userRepository.save(user);
-            } else {
-                throw new IncorrectPasswordException("Incorrect password");
-            }
+        ProductManager user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (user.getPassword().equals(currentPassword)) {
+            user.setPassword(newPassword); // Again, hash the new password
+            return userRepository.save(user);
         } else {
-            throw new UserNotFoundException("User not found");
+            throw new IncorrectPasswordException("Incorrect password");
         }
     }
 
@@ -88,34 +83,26 @@ public class UserServiceImpl implements UserService {
         ProductManager user = userRepository.findAll().stream()
                 .filter(u -> u.getUsername().equals(username))
                 .findFirst()
-                .orElse(null);
-        if (user != null) {
-            if (user.getBlockStatus()) {
-                throw new UserNotFoundException("User is blocked");
-            }
-            if (user.getPassword().equals(password)) {
-                return user;
-            } else {
-                throw new IncorrectPasswordException("Incorrect password");
-            }
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
+        if (user.getBlockStatus()) {
+            throw new UserNotFoundException("User is blocked");
+        }
+
+        if (user.getPassword().equals(password)) {
+            return user;
         } else {
-            throw new UserNotFoundException("User not found");
+            throw new IncorrectPasswordException("Incorrect password");
         }
     }
 
-
-    
     @Override
     public Product addCD(String userId, CD product) {
-        // Lưu CD vào database
         product.setProductType("cd");
         CD savedCD = cdRepository.save(product);
 
-        // Lấy ProductManager
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {
-            // Thêm id sản phẩm vào danh sách sở hữu (nếu chưa có)
             if (user.getOwnProductIds() == null) {
                 user.setOwnProductIds(new ArrayList<>());
             }
@@ -129,6 +116,7 @@ public class UserServiceImpl implements UserService {
     public Product addBook(String userId, Book product) {
         product.setProductType("book");
         Book savedBook = bookRepository.save(product);
+
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             if (user.getOwnProductIds() == null) {
@@ -144,6 +132,7 @@ public class UserServiceImpl implements UserService {
     public Product addDVD(String userId, DVD product) {
         product.setProductType("dvd");
         DVD savedDVD = dvdRepository.save(product);
+
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             if (user.getOwnProductIds() == null) {
@@ -155,50 +144,92 @@ public class UserServiceImpl implements UserService {
         return savedDVD;
     }
 
-
+    /**
+     * [REFACTORED] Updated using the "Find, Update, Save" pattern.
+     * This prevents issues like 'productType' being null and is safer.
+     */
     @Override
-    public Product updateCD(String id, CD product){
-        CD product1 = cdRepository.findById(id).orElse(null);
-        if (product1 != null) {
-            cdRepository.delete(product1);
-            return cdRepository.save(product);
-        } else {
-            throw new ProductNotFoundException("Product not found");
-        }
+    public Product updateCD(String id, CD productDetails) {
+        CD existingCD = cdRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("CD not found with id: " + id));
+
+        // Các trường chung từ lớp Product
+        existingCD.setTitle(productDetails.getTitle());
+        existingCD.setDescription(productDetails.getDescription());
+        existingCD.setPrice(productDetails.getPrice());
+        existingCD.setQuantity(productDetails.getQuantity());
+        existingCD.setWeight(productDetails.getWeight());
+        existingCD.setImageURL(productDetails.getImageURL());
+        existingCD.setRushDeliverySupport(productDetails.isRushDeliverySupport());
+        
+        // Các trường riêng của CD (đã đúng)
+        existingCD.setArtist(productDetails.getArtist());
+        existingCD.setRecordLabel(productDetails.getRecordLabel());
+        existingCD.setMusicType(productDetails.getMusicType());
+        existingCD.setReleasedDate(productDetails.getReleasedDate());
+
+        return cdRepository.save(existingCD);
     }
 
     @Override
-    public Product updateBook(String id, Book product){
-        Book product1 = bookRepository.findById(id).orElse(null);
-        if (product1 != null) {
-            bookRepository.delete(product1);
-            return bookRepository.save(product);
-        } else {
-            throw new ProductNotFoundException("Product not found");
-        }
+    public Product updateBook(String id, Book productDetails) {
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Book not found with id: " + id));
+        
+        // Các trường chung từ lớp Product
+        existingBook.setTitle(productDetails.getTitle());
+        existingBook.setDescription(productDetails.getDescription());
+        existingBook.setPrice(productDetails.getPrice());
+        existingBook.setQuantity(productDetails.getQuantity());
+        existingBook.setWeight(productDetails.getWeight());
+        existingBook.setImageURL(productDetails.getImageURL());
+        existingBook.setRushDeliverySupport(productDetails.isRushDeliverySupport());
+        
+        // Các trường riêng của Book (đã được chỉnh lại cho đúng entity)
+        existingBook.setAuthor(productDetails.getAuthor());
+        existingBook.setPublisher(productDetails.getPublisher());
+        existingBook.setCoverType(productDetails.getCoverType());
+        existingBook.setLanguage(productDetails.getLanguage()); //  <-- THÊM LẠI
+        existingBook.setPublishDate(productDetails.getPublishDate()); // <-- SỬA LẠI
+        existingBook.setNumOfPages(productDetails.getNumOfPages());   // <-- SỬA LẠI
+        existingBook.setBookCategory(productDetails.getBookCategory()); // <-- THÊM LẠI
+        
+        return bookRepository.save(existingBook);
     }
 
     @Override
-    public Product updateDVD(String id, DVD product){
-        DVD product1 = dvdRepository.findById(id).orElse(null);
-        if (product1 != null) {
-            dvdRepository.delete(product1);
-            return dvdRepository.save(product);
-        } else {
-            throw new ProductNotFoundException("Product not found");
-        }
+    public Product updateDVD(String id, DVD productDetails) {
+        DVD existingDVD = dvdRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("DVD not found with id: " + id));
+
+        // Các trường chung từ lớp Product
+        existingDVD.setTitle(productDetails.getTitle());
+        existingDVD.setDescription(productDetails.getDescription());
+        existingDVD.setPrice(productDetails.getPrice());
+        existingDVD.setQuantity(productDetails.getQuantity());
+        existingDVD.setWeight(productDetails.getWeight());
+        existingDVD.setImageURL(productDetails.getImageURL());
+        existingDVD.setRushDeliverySupport(productDetails.isRushDeliverySupport());
+        
+        // Các trường riêng của DVD (đã được chỉnh lại cho đúng entity)
+        existingDVD.setDirector(productDetails.getDirector());
+        existingDVD.setSubtitles(productDetails.getSubtitles());
+        existingDVD.setReleasedDate(productDetails.getReleasedDate());
+        existingDVD.setLanguage(productDetails.getLanguage()); // <-- THÊM LẠI
+        existingDVD.setDiscType(productDetails.getDiscType()); // <-- SỬA LẠI
+        existingDVD.setDuration(productDetails.getDuration()); // <-- SỬA LẠI
+        existingDVD.setFilmType(productDetails.getFilmType()); // <-- SỬA LẠI
+
+        return dvdRepository.save(existingDVD);
     }
 
     @Override
     public void deleteProduct(String userId, String id) {
-        // Xóa sản phẩm khỏi collection product
-        if (productRepository.existsById(id)) {
-            productRepository.deleteById(id);
-        } else {
+        if (!productRepository.existsById(id)) {
             throw new ProductNotFoundException("Product not found");
         }
+        productRepository.deleteById(id);
 
-        // Xóa id sản phẩm khỏi danh sách sở hữu của ProductManager
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null && user.getOwnProductIds() != null) {
             user.getOwnProductIds().remove(id);
@@ -208,16 +239,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteListProduct(String userId, List<String> ids) {
-        if (ids.size() > 10)
+        if (ids.size() > 10) {
             throw new ProductSizeException("Number of products to delete must be less than 10 at once.");
-        for (String id : ids) {
-            if (productRepository.existsById(id))
-                productRepository.deleteById(id);
-            else
-                throw new ProductNotFoundException("Product not found");
         }
+        
+        List<Product> productsToDelete = productRepository.findAllById(ids);
+        if(productsToDelete.size() != ids.size()){
+            throw new ProductNotFoundException("One or more products not found");
+        }
+        productRepository.deleteAll(productsToDelete);
 
-        // Xóa các id sản phẩm khỏi danh sách sở hữu của ProductManager
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null && user.getOwnProductIds() != null) {
             user.getOwnProductIds().removeAll(ids);
@@ -227,26 +258,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Product updatePrice(String productId, int newPrice) {
-        Product product = productRepository.findById(productId).orElse(null);
-        if (product != null) {
-            product.setPrice(newPrice);
-            return productRepository.save(product);
-        } else {
-            throw new ProductNotFoundException("Product not found");
-        }
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        product.setPrice(newPrice);
+        return productRepository.save(product);
     }
 
     @Override
-    public String getURLImage(Cloudinary cloudinary, MultipartFile image) throws IOException{
+    public String getURLImage(Cloudinary cloudinary, MultipartFile image) throws IOException {
         @SuppressWarnings("rawtypes")
         Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
-        String imageUrl = (String) uploadResult.get("secure_url");
-        return imageUrl;
-    }
-    @Override
-    public Product getProductById(String id) {
-        return productRepository.findById(id).orElseThrow(() 
-            -> new ProductNotFoundException("Product not found"));
+        return (String) uploadResult.get("secure_url");
     }
 
+    @Override
+    public Product getProductById(String id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+    }
 }

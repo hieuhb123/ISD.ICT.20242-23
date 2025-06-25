@@ -1,13 +1,12 @@
 package com.media_shop.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -23,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "product")
-
 public class Product {
     @Id
     protected String id;
@@ -35,7 +33,6 @@ public class Product {
     protected double weight;
     protected String dimension;
     protected String imageURL;
-    protected boolean isDeleted;
+    protected boolean isDeleted; // Giữ nguyên tên gốc
     private boolean rushDeliverySupport;
 }
-

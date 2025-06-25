@@ -2,18 +2,19 @@ package com.media_shop.entity.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.Date;
 
-@Document(collection = "product")
 @Data
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@AllArgsConstructor
+@Document(collection = "product")
 public class CD extends Product {
-    String artist;
-    String recordLabel;
-    String musicType;
-    Date releasedDate;
+    private String artist;
+    private String recordLabel;
+    private String musicType;
+    private Date releasedDate;
 }
