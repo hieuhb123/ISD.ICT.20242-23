@@ -1,14 +1,13 @@
 package com.media_shop.dto;
 
-import lombok.Getter;
+import com.media_shop.entity.product.Product;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public class CartItemDTO {
-    @Getter
-    private String productId;
-    @Getter
+@Data
+@AllArgsConstructor
+public class CartProductDTO {
+    private Product product;
+    private int statusCode;
     private int quantity;
-    @Getter
-    private double unitPrice;
-
-
 }
