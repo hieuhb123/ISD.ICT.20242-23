@@ -95,7 +95,7 @@ const AddProduct: React.FC = () => {
 
         try {
             // Sử dụng currentUser.id trong URL
-            const url = `http://localhost:8080/apt/ProductManager/add-${productType}?userId=${encodeURIComponent(currentUser.id)}`;
+            const url = `http://localhost:8080/api/ProductManager/add-${productType}?userId=${encodeURIComponent(currentUser.id)}`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: submissionFormData,
@@ -104,7 +104,7 @@ const AddProduct: React.FC = () => {
             if (response.ok) {
                 alert('Thêm sản phẩm thành công!');
                 // Điều hướng về trang danh sách sản phẩm
-                navigate('/apt/ProductManager/list-product');
+                navigate('/api/ProductManager/list-product');
             } else {
                 const errorData = await response.json();
                 setError(`Thêm sản phẩm thất bại: ${errorData.message || 'Lỗi không xác định'}`);
