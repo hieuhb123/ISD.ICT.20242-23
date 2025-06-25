@@ -46,8 +46,6 @@ const Login: React.FC = () => {
 
             const data = await res.json();
 
-            // KIỂM TRA DỮ LIỆU TRẢ VỀ TỪ API
-            console.log('API Response Data:', JSON.stringify(data, null, 2));
 
             if (isMountedRef.current) {
                 if (res.ok && data.code === 1 && data.data) {
