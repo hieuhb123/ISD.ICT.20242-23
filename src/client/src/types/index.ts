@@ -40,6 +40,11 @@ type CartItem = {
     quantity: number;
 };
 
+type User = {
+    id: string;
+    name: string;
+    role: 'Product Manager' | 'Customer' | 'Admin';   
+}
 type OrderItem = {
     productId: String;
     title?: String;
@@ -64,5 +69,5 @@ type Order = {
     createdAt?: string;
 };
 
-export type { MediaItem, CartItem , OrderItem, Order };
+export type { MediaItem, CartItem , OrderItem, Order, User };
 

@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Map;
 
 @RestController
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/payment")
 public class VNPayController {
 

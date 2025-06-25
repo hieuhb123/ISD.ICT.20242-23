@@ -1,9 +1,10 @@
-// === BƯỚC 1: IMPORT USEEFFECT VÀ USEREF ===
+// Import các thành phần cần thiết
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MediaItem } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
+// ... (initialFormState và BOOK_CATEGORIES không đổi)
 const initialFormState: Partial<MediaItem> = {
     title: '',
     price: '',
@@ -30,37 +31,52 @@ const initialFormState: Partial<MediaItem> = {
     filmType: '',
 };
 
-const AddProduct: React.FC = () => {
-    const { currentUser } = useAuth(); 
-    const navigate = useNavigate();
+const BOOK_CATEGORIES = ["Books", "Biographies & Memoirs", "Leaders & Notable People"];
 
+
+const AddProduct: React.FC = () => {
+    // ... (các state và hooks không đổi)
+    const { currentUser } = useAuth();
+    const navigate = useNavigate();
     const [productType, setProductType] = useState<'cd' | 'book' | 'dvd'>('cd');
     const [formData, setFormData] = useState<Partial<MediaItem>>(initialFormState);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-
-    // === BƯỚC 2: KHỞI TẠO REF ĐỂ THEO DÕI TRẠNG THÁI MOUNT ===
     const isMounted = useRef(false);
 
-    // === BƯỚC 3: SỬ DỤNG USEEFFECT ĐỂ CẬP NHẬT REF KHI COMPONENT MOUNT/UNMOUNT ===
     useEffect(() => {
-        isMounted.current = true; // Đánh dấu là component đã mount
+        isMounted.current = true;
         return () => {
-            // Hàm cleanup này sẽ chạy khi component bị unmount
-            isMounted.current = false; // Đánh dấu là component đã unmount
+            isMounted.current = false;
         };
-    }, []); // Mảng rỗng đảm bảo effect chỉ chạy 1 lần khi mount và cleanup khi unmount
+    }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
-        let parsedValue: any = value;
-        if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
-            parsedValue = e.target.checked;
-        }
+        const parsedValue = type === 'checkbox' && e.target instanceof HTMLInputElement
+            ? e.target.checked
+            : value;
         setFormData(prev => ({ ...prev, [name]: parsedValue }));
     };
 
+    // === THAY ĐỔI 1: TẠO HÀM XỬ LÝ MỚI CHO CHECKBOX ===
+    // Hàm này sẽ thêm hoặc bớt thể loại khỏi mảng bookCategory
+    const handleCategoryCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value, checked } = e.target;
+        setFormData(prev => {
+            const currentCategories = prev.bookCategory || [];
+            if (checked) {
+                // Nếu được check, thêm thể loại vào mảng (nếu chưa có)
+                return { ...prev, bookCategory: [...currentCategories, value] };
+            } else {
+                // Nếu bỏ check, loại bỏ thể loại khỏi mảng
+                return { ...prev, bookCategory: currentCategories.filter(category => category !== value) };
+            }
+        });
+    };
+
+    // ... (các hàm xử lý khác không đổi)
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
@@ -72,10 +88,11 @@ const AddProduct: React.FC = () => {
         setProductType(newType);
         setFormData(initialFormState);
     };
-
+    
+    // handleSubmit không cần thay đổi gì cả, vì formData.bookCategory đã là một mảng
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Các lệnh setState ở đây an toàn vì chúng chạy đồng bộ trước khi có await
+        // ... logic submit giữ nguyên
         setError('');
         setIsLoading(true);
 
@@ -95,7 +112,6 @@ const AddProduct: React.FC = () => {
             productType,
             price: parseFloat(String(formData.price)) || 0,
             numOfPages: formData.numOfPages ? parseInt(String(formData.numOfPages)) : undefined,
-            bookCategory: typeof formData.bookCategory === 'string' ? (formData.bookCategory as string).split(',') : formData.bookCategory,
         };
 
         const submissionFormData = new FormData();
@@ -108,32 +124,22 @@ const AddProduct: React.FC = () => {
                 method: 'POST',
                 body: submissionFormData,
             });
-
-            // Sau khi `await`, component có thể đã bị unmount.
-            // Vì vậy, tất cả các lệnh cập nhật state từ đây trở đi cần được kiểm tra.
+            
+            if (!isMounted.current) return; 
 
             if (response.ok) {
                 alert('Thêm sản phẩm thành công!');
-                // Lệnh navigate() sẽ khiến component bị unmount.
-                // Mọi lệnh setState sau lệnh này chắc chắn sẽ gây ra warning nếu không được kiểm tra.
                 navigate('/api/ProductManager/list-product');
             } else {
                 const errorData = await response.json();
-                // === BƯỚC 4: KIỂM TRA isMounted TRƯỚC KHI CẬP NHẬT STATE LỖI ===
-                if (isMounted.current) {
-                    setError(`Thêm sản phẩm thất bại: ${errorData.message || 'Lỗi không xác định'}`);
-                }
+                setError(`Thêm sản phẩm thất bại: ${errorData.message || 'Lỗi không xác định'}`);
             }
         } catch (err) {
             console.error(err);
-            // === BƯỚC 4: KIỂM TRA isMounted TRƯỚC KHI CẬP NHẬT STATE LỖI ===
             if (isMounted.current) {
                 setError('Đã có lỗi xảy ra khi thêm sản phẩm.');
             }
         } finally {
-            // === BƯỚC 4: KIỂM TRA isMounted TRƯỚC KHI CẬP NHẬT STATE LOADING ===
-            // Đây là nơi quan trọng nhất gây ra warning, vì nó luôn chạy sau khi request kết thúc,
-            // kể cả khi đã navigate() thành công.
             if (isMounted.current) {
                 setIsLoading(false);
             }
@@ -141,9 +147,9 @@ const AddProduct: React.FC = () => {
     };
 
     const renderSpecificFields = () => {
-        // ... (Nội dung hàm này không thay đổi)
         switch (productType) {
             case 'cd':
+                // ... (không thay đổi)
                 return (
                     <>
                         <input name="artist" value={formData.artist || ''} onChange={handleChange} placeholder="Artist" className="form-control mb-2" />
@@ -153,6 +159,7 @@ const AddProduct: React.FC = () => {
                     </>
                 );
             case 'book':
+                // === THAY ĐỔI 2: CẬP NHẬT GIAO DIỆN SANG DÙNG CHECKBOX ===
                 return (
                     <>
                         <input name="author" value={formData.author || ''} onChange={handleChange} placeholder="Author" className="form-control mb-2" />
@@ -161,10 +168,32 @@ const AddProduct: React.FC = () => {
                         <input type="date" name="publishDate" value={formData.publishDate || ''} onChange={handleChange} className="form-control mb-2" />
                         <input type="number" name="numOfPages" value={formData.numOfPages || ''} onChange={handleChange} placeholder="Number of Pages" className="form-control mb-2" />
                         <input name="language" value={formData.language || ''} onChange={handleChange} placeholder="Language" className="form-control mb-2" />
-                        <input name="bookCategory" value={(formData.bookCategory || []).join(',')} onChange={handleChange} placeholder="Book Categories (comma separated)" className="form-control mb-2" />
+
+                        {/* Thay thế select bằng một nhóm các checkbox */}
+                        <div className="mt-3">
+                            <label className="form-label">Book Categories:</label>
+                            {BOOK_CATEGORIES.map(category => (
+                                <div className="form-check" key={category}>
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id={`category-${category}`}
+                                        value={category}
+                                        // Kiểm tra xem checkbox có nên được check hay không
+                                        checked={(formData.bookCategory || []).includes(category)}
+                                        // Sử dụng hàm xử lý mới
+                                        onChange={handleCategoryCheckboxChange}
+                                    />
+                                    <label className="form-check-label" htmlFor={`category-${category}`}>
+                                        {category}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
                     </>
                 );
             case 'dvd':
+                 // ... (không thay đổi)
                 return (
                     <>
                         <input name="discType" value={formData.discType || ''} onChange={handleChange} placeholder="Disc Type" className="form-control mb-2" />
@@ -180,6 +209,7 @@ const AddProduct: React.FC = () => {
         }
     };
 
+    // ... (phần return JSX chung không đổi)
     return (
         <div className="container mt-4">
             <h2>Add New Product</h2>
@@ -193,7 +223,7 @@ const AddProduct: React.FC = () => {
                 <input name="title" value={formData.title || ''} onChange={handleChange} placeholder="Product Title" className="form-control mb-2" required disabled={isLoading} />
                 <input type="number" name="price" value={formData.price || ''} onChange={handleChange} placeholder="Price" className="form-control mb-2" required disabled={isLoading}/>
                 <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder="Description" className="form-control mb-2" disabled={isLoading}/>
-                <input type="number" name="quantity" value={formData.quantity || 1} onChange={handleChange} placeholder="Quantity" className="form-control mb-2" disabled={isLoading}/>
+                <label>Number</label><input type="number" name="quantity" value={formData.quantity || 1} onChange={handleChange} placeholder="Quantity" className="form-control mb-2" disabled={isLoading}/>
                 <input name="weight" value={formData.weight || ''} onChange={handleChange} placeholder="Weight" className="form-control mb-2" disabled={isLoading}/>
                 <div className="form-check mb-2">
                     <input id="rushDeliverySupport" className="form-check-input" type="checkbox" name="rushDeliverySupport" checked={formData.rushDeliverySupport || false} onChange={handleChange} disabled={isLoading}/>

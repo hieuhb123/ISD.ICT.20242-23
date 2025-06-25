@@ -1,13 +1,7 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import {User } from '../types'; 
 
-// Định nghĩa "hình dạng" (interface) của đối tượng người dùng (Giữ nguyên)
-export interface User {
-  id: string;
-  name: string;
-  role: 'Product Manager' | 'Customer' | 'Admin';
-}
-
-// Định nghĩa những gì Context sẽ cung cấp (Giữ nguyên)
+// Định nghĩa những gì Context sẽ cung cấp 
 interface AuthContextType {
   currentUser: User | null;
   login: (user: User) => void;
@@ -21,7 +15,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
 });
 
-// BƯỚC 4: Tạo component Provider (Đã được cập nhật)
+// BƯỚC 4: Tạo component Provider
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   //  tạo state từ localStorage
   // Sử dụng hàm callback trong useState để logic này chỉ chạy một lần duy nhất khi component được tạo.
@@ -72,7 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// BƯỚC 5: Tạo một Custom Hook để sử dụng Context dễ dàng hơn (Giữ nguyên)
+// Tạo một Custom Hook để sử dụng Context dễ dàng hơn 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
