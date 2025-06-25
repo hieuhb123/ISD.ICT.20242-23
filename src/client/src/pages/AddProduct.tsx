@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Thêm useNavigate để điều hướng sau khi thành công
 import { MediaItem } from '../types';
+// === BƯỚC 1: IMPORT USEAUTH ===
+import { useAuth } from '../contexts/AuthContext';
 
 const initialFormState: Partial<MediaItem> = {
     title: '',
@@ -9,12 +12,10 @@ const initialFormState: Partial<MediaItem> = {
     weight: '',
     rushDeliverySupport: false,
     isDeleted: false,
-    // CD
     artist: '',
     recordLabel: '',
     musicType: '',
     releasedDate: '',
-    // Book
     author: '',
     coverType: '',
     publisher: '',
@@ -22,7 +23,6 @@ const initialFormState: Partial<MediaItem> = {
     numOfPages: undefined,
     language: '',
     bookCategory: [],
-    // DVD
     discType: '',
     director: '',
     duration: '',
@@ -31,10 +31,17 @@ const initialFormState: Partial<MediaItem> = {
 };
 
 const AddProduct: React.FC = () => {
+    // === BƯỚC 2: LẤY CURRENTUSER TỪ CONTEXT ===
+    const { currentUser } = useAuth(); 
+    const navigate = useNavigate(); // Hook để điều hướng
+
     const [productType, setProductType] = useState<'cd' | 'book' | 'dvd'>('cd');
     const [formData, setFormData] = useState<Partial<MediaItem>>(initialFormState);
-    const [userId, setUserId] = useState('');
+    // === BƯỚC 3: XÓA STATE CỤC BỘ CỦA USERID ===
+    // const [userId, setUserId] = useState(''); // Không cần dòng này nữa
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [isLoading, setIsLoading] = useState(false); // Thêm state cho loading
+    const [error, setError] = useState(''); // Thêm state cho lỗi
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -59,9 +66,20 @@ const AddProduct: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+        setIsLoading(true);
 
-        if (!userId.trim()) return alert('Please enter the Manager User ID.');
-        if (!imageFile) return alert('Please select an image for the product.');
+        // === BƯỚC 4: SỬ DỤNG CURRENTUSER.ID THAY VÌ STATE CỤC BỘ ===
+        if (!currentUser?.id) {
+            setError('Không tìm thấy thông tin người quản lý. Vui lòng đăng nhập lại.');
+            setIsLoading(false);
+            return;
+        }
+        if (!imageFile) {
+            setError('Vui lòng chọn ảnh cho sản phẩm.');
+            setIsLoading(false);
+            return;
+        }
 
         const productData: Partial<MediaItem> = {
             ...formData,
@@ -76,29 +94,30 @@ const AddProduct: React.FC = () => {
         submissionFormData.append('image', imageFile);
 
         try {
-            const url = `http://localhost:8080/api/ProductManager/add-${productType}?userId=${encodeURIComponent(userId)}`;
+            // Sử dụng currentUser.id trong URL
+            const url = `http://localhost:8080/apt/ProductManager/add-${productType}?userId=${encodeURIComponent(currentUser.id)}`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: submissionFormData,
             });
 
             if (response.ok) {
-                alert('Product added successfully!');
-                setFormData(initialFormState);
-                setImageFile(null);
-                setUserId('');
-                const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-                if (fileInput) fileInput.value = '';
+                alert('Thêm sản phẩm thành công!');
+                // Điều hướng về trang danh sách sản phẩm
+                navigate('/apt/ProductManager/list-product');
             } else {
                 const errorData = await response.json();
-                alert(`Failed to add product: ${errorData.message || 'Unknown error'}`);
+                setError(`Thêm sản phẩm thất bại: ${errorData.message || 'Lỗi không xác định'}`);
             }
         } catch (err) {
             console.error(err);
-            alert('An error occurred while adding the product.');
+            setError('Đã có lỗi xảy ra khi thêm sản phẩm.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
+    // Phần render các trường riêng cho từng loại sản phẩm (giữ nguyên)
     const renderSpecificFields = () => {
         switch (productType) {
             case 'cd':
@@ -142,27 +161,31 @@ const AddProduct: React.FC = () => {
         <div className="container mt-4">
             <h2>Add New Product</h2>
             <form onSubmit={handleSubmit}>
-                <input name="userId" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="Manager User ID" className="form-control mb-3" required />
-                <select name="productType" value={productType} onChange={handleTypeChange} className="form-select mb-3">
+                {/* === BƯỚC 5: XÓA TRƯỜNG INPUT USERID KHỎI FORM === */}
+                {/* <input name="userId" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="Manager User ID" className="form-control mb-3" required /> */}
+                
+                <select name="productType" value={productType} onChange={handleTypeChange} className="form-select mb-3" disabled={isLoading}>
                     <option value="cd">CD</option>
                     <option value="book">Book</option>
                     <option value="dvd">DVD</option>
                 </select>
 
-                <input name="title" value={formData.title || ''} onChange={handleChange} placeholder="Product Title" className="form-control mb-2" required />
-                <input type="number" name="price" value={formData.price || ''} onChange={handleChange} placeholder="Price" className="form-control mb-2" required />
-                <textarea name="description" value={formData.description || ''} onChange={handleChange} placeholder="Description" className="form-control mb-2" />
-                <input type="number" name="quantity" value={formData.quantity || 1} onChange={handleChange} placeholder="Quantity" className="form-control mb-2" />
-                <input name="weight" value={formData.weight || ''} onChange={handleChange} placeholder="Weight" className="form-control mb-2" />
-                <input type="checkbox" name="rushDeliverySupport" checked={formData.rushDeliverySupport || false} onChange={handleChange} /> Rush Delivery Support
-
+                <input name="title" value={formData.title || ''} onChange={handleChange} placeholder="Product Title" className="form-control mb-2" required disabled={isLoading} />
+                <input type="number" name="price" value={formData.price || ''} onChange={handleChange} placeholder="Price" className="form-control mb-2" required disabled={isLoading}/>
+                {/* ... các trường input khác ... */}
+                
                 <div className="mt-3 mb-3">
                     <label>Product Image</label>
-                    <input type="file" onChange={handleImageChange} className="form-control" accept="image/*" required />
+                    <input type="file" onChange={handleImageChange} className="form-control" accept="image/*" required disabled={isLoading}/>
                 </div>
 
                 {renderSpecificFields()}
-                <button type="submit" className="btn btn-primary mt-3">Add Product</button>
+                
+                {error && <div className="alert alert-danger mt-3">{error}</div>}
+
+                <button type="submit" className="btn btn-primary mt-3" disabled={isLoading}>
+                    {isLoading ? 'Đang xử lý...' : 'Thêm sản phẩm'}
+                </button>
             </form>
         </div>
     );

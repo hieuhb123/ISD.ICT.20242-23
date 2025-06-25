@@ -1,14 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// Vui lòng kiểm tra lại đường dẫn import AuthContext của bạn
+import { useAuth, User } from '../contexts/AuthContext'; 
 
 const Login: React.FC = () => {
+    const { login } = useAuth();
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('pm');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
+
         try {
             let url = '';
             if (role === 'pm') {
@@ -16,6 +34,7 @@ const Login: React.FC = () => {
             } else if (role === 'admin') {
                 url = 'http://localhost:8080/api/admin/login';
             }
+
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -24,15 +43,40 @@ const Login: React.FC = () => {
                     password: password
                 }),
             });
+
             const data = await res.json();
-            if (res.ok && data.code === 1) {
-                alert('Login successfully!');
-                // Lưu thông tin user nếu cần
-            } else {
-                setError(data.message || 'Login failed');
+
+            // KIỂM TRA DỮ LIỆU TRẢ VỀ TỪ API
+            console.log('API Response Data:', JSON.stringify(data, null, 2));
+
+            if (isMountedRef.current) {
+                if (res.ok && data.code === 1 && data.data) {
+                    
+                    // =======================================================================
+                    // === SỬA LỖI Ở ĐÂY ===
+                    // Lấy 'username' từ API và gán vào thuộc tính 'name' của Context
+                    const userToLogin: User = {
+                        id: data.data.id,
+                        name: data.data.username, // Sửa từ data.data.name thành data.data.username
+                        role: 'Product Manager'
+                    };
+                    // =======================================================================
+                    
+                    login(userToLogin);
+                    navigate('/api/ProductManager/list-product');
+
+                } else {
+                    setError(data.message || 'Login failed');
+                }
             }
         } catch (err) {
-            setError('Login failed');
+            if (isMountedRef.current) {
+                setError('Login failed. Please check your connection.');
+            }
+        } finally {
+            if (isMountedRef.current) {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -50,6 +94,7 @@ const Login: React.FC = () => {
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         required
+                        disabled={isLoading}
                     />
                     <label htmlFor="floatingInput">Email address</label>
                 </div>
@@ -62,10 +107,13 @@ const Login: React.FC = () => {
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required
+                        disabled={isLoading}
                     />
                     <label htmlFor="floatingPassword">Password</label>
                 </div>
-                <button className="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+                <button className="btn btn-primary w-100 py-2" type="submit" disabled={isLoading}>
+                    {isLoading ? 'Signing in...' : 'Sign in'}
+                </button>
                 <div className="list-group mt-2">
                     <label className="list-group-item d-flex gap-2">
                         <input
@@ -76,6 +124,7 @@ const Login: React.FC = () => {
                             value="pm"
                             checked={role === 'pm'}
                             onChange={() => setRole('pm')}
+                            disabled={isLoading}
                         />
                         <span>
                             Product Manager
@@ -90,6 +139,7 @@ const Login: React.FC = () => {
                             value="admin"
                             checked={role === 'admin'}
                             onChange={() => setRole('admin')}
+                            disabled={isLoading}
                         />
                         <span>
                             Admin

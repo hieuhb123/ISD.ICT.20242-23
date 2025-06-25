@@ -1,5 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Import AuthProvider đã tạo ở bước trước
+import { AuthProvider } from './contexts/AuthContext';
+
+// Import các component và trang của bạn
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Header from './components/Header';
@@ -12,24 +17,34 @@ import OrderDetail from './pages/OrderDetail';
 import AddProduct from './pages/AddProduct';
 import ListProduct from './pages/ListProduct';
 import UpdateProduct from './pages/UpdateProduct';
+
+//... các import khác
+
 const App: React.FC = () => (
-  <Router>
-    <Header />
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/cart" element={<CartPage />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/result" element={<Return />} />
-      <Route path="/order" element={<Order />} />
-      <Route path="/vieworder" element={<ViewOrder />} />
-      <Route path="/list-product" element={<ListProduct />} />
-      <Route path="add-product" element={<AddProduct />} />
-      <Route path="/update-product/:id" element={<UpdateProduct />} />
-      <Route path="/order/:orderId" element={<OrderDetail />} />
-      {/* Thêm các route khác nếu cần */}
-    </Routes>
-  </Router>
+  <AuthProvider>
+    <Router>
+      <Header />
+      <Routes>
+        {/* Các route công khai và của người dùng thông thường */}
+        <Route path="/" element={<Home />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/result" element={<Return />} />
+        <Route path="/order" element={<Order />} />
+        <Route path="/vieworder" element={<ViewOrder />} />
+        <Route path="/order/:orderId" element={<OrderDetail />} />
+
+        {/* === THAY ĐỔI Ở ĐÂY === */}
+        {/* Nhóm các route dành cho Product Manager */}
+        <Route path="/api/ProductManager/list-product" element={<ListProduct />} />
+        <Route path="/api/ProductManager/add-product" element={<AddProduct />} />
+        <Route path="/api/ProductManager/update-product/:id" element={<UpdateProduct />} />
+        {/* ======================== */}
+
+      </Routes>
+    </Router>
+  </AuthProvider>
 );
 
 export default App;
