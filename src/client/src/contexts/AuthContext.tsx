@@ -1,46 +1,68 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
-// BƯỚC 1: Định nghĩa "hình dạng" (interface) của đối tượng người dùng
-// Điều này giúp đảm bảo dữ liệu người dùng trong toàn bộ ứng dụng luôn nhất quán.
+// Định nghĩa "hình dạng" (interface) của đối tượng người dùng (Giữ nguyên)
 export interface User {
   id: string;
   name: string;
-  role: 'Product Manager' | 'Customer' | 'Admin'; // Mở rộng thêm vai trò nếu cần
+  role: 'Product Manager' | 'Customer' | 'Admin';
 }
 
-// BƯỚC 2: Định nghĩa những gì Context sẽ cung cấp cho các component con
+// Định nghĩa những gì Context sẽ cung cấp (Giữ nguyên)
 interface AuthContextType {
-  currentUser: User | null;      // Người dùng hiện tại, có thể là null nếu chưa đăng nhập
-  login: (user: User) => void;   // Hàm để thực hiện đăng nhập
-  logout: () => void;            // Hàm để thực hiện đăng xuất
+  currentUser: User | null;
+  login: (user: User) => void;
+  logout: () => void;
 }
 
-// BƯỚC 3: Tạo Context với một giá trị mặc định
-// Giá trị này chỉ được sử dụng như một phương án dự phòng.
+// Tạo Context với một giá trị mặc định 
 const AuthContext = createContext<AuthContextType>({
   currentUser: null,
-  login: () => {}, // Hàm rỗng để tránh lỗi
-  logout: () => {}, // Hàm rỗng để tránh lỗi
+  login: () => {},
+  logout: () => {},
 });
 
-// BƯỚC 4: Tạo component Provider
-// Đây là component sẽ "bọc" ứng dụng của bạn và cung cấp dữ liệu.
+// BƯỚC 4: Tạo component Provider (Đã được cập nhật)
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  //  tạo state từ localStorage
+  // Sử dụng hàm callback trong useState để logic này chỉ chạy một lần duy nhất khi component được tạo.
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    try {
+      const savedUser = localStorage.getItem('currentUser');
+      // Nếu có dữ liệu trong localStorage, chuyển nó từ chuỗi JSON về lại object
+      if (savedUser) {
+        return JSON.parse(savedUser);
+      }
+    } catch (error) {
+      console.error("Lỗi khi đọc dữ liệu người dùng từ localStorage:", error);
+      return null;
+    }
+    return null; // Nếu không có gì thì trả về null
+  });
 
-  // Hàm xử lý logic đăng nhập: nhận một đối tượng user và lưu vào state
+  // Sử dụng useEffect để tự động đồng bộ state với localStorage
+  // Hook này sẽ được kích hoạt mỗi khi giá trị của `currentUser` thay đổi.
+  useEffect(() => {
+    if (currentUser) {
+      // Khi người dùng đăng nhập (currentUser có giá trị), lưu vào localStorage.
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    } else {
+      // Khi người dùng đăng xuất (currentUser là null), xóa khỏi localStorage.
+      localStorage.removeItem('currentUser');
+    }
+  }, [currentUser]);
+
+  // Hàm login bây giờ chỉ cần cập nhật state, useEffect sẽ lo phần còn lại.
   const login = (user: User) => {
     setCurrentUser(user);
     console.log(`Người dùng ${user.name} (Role: ${user.role}) đã đăng nhập.`);
   };
 
-  // Hàm xử lý logic đăng xuất: xóa thông tin user khỏi state
+  // Hàm logout cũng chỉ cần cập nhật state.
   const logout = () => {
     console.log(`Người dùng ${currentUser?.name} đã đăng xuất.`);
     setCurrentUser(null);
   };
 
-  // Tạo ra giá trị sẽ được cung cấp cho toàn bộ ứng dụng
   const value = {
     currentUser,
     login,
@@ -50,9 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// BƯỚC 5: Tạo một Custom Hook để sử dụng Context dễ dàng hơn
-// Thay vì phải import useContext và AuthContext ở mọi nơi,
-// bạn chỉ cần import và gọi useAuth().
+// BƯỚC 5: Tạo một Custom Hook để sử dụng Context dễ dàng hơn (Giữ nguyên)
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

@@ -192,3 +192,4 @@ const UpdateProduct: React.FC = () => {
 };
 
 export default UpdateProduct;
+    
