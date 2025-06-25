@@ -14,6 +14,7 @@ import com.media_shop.repository.user.ProductManagerRepository;
 import com.media_shop.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.media_shop.utils.Constants;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -225,10 +226,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteProduct(String userId, String id) {
-        if (!productRepository.existsById(id)) {
-            throw new ProductNotFoundException("Product not found");
-        }
-        productRepository.deleteById(id);
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        
+        product.setDeleted(true);
+        productRepository.save(product);
 
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null && user.getOwnProductIds() != null) {
@@ -247,7 +249,10 @@ public class UserServiceImpl implements UserService {
         if(productsToDelete.size() != ids.size()){
             throw new ProductNotFoundException("One or more products not found");
         }
-        productRepository.deleteAll(productsToDelete);
+        
+        // Soft delete: đặt deleted = true cho tất cả sản phẩm thay vì xóa hoàn toàn
+        productsToDelete.forEach(product -> product.setDeleted(true));
+        productRepository.saveAll(productsToDelete);
 
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null && user.getOwnProductIds() != null) {

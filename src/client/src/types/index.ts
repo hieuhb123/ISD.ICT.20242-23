@@ -43,7 +43,7 @@ type CartItem = {
 type User = {
     id: string;
     name: string;
-    role: 'Product Manager' | 'Customer' | 'Admin';   
+    role: 'Product Manager' | 'Admin';   
 }
 type OrderItem = {
     productId: String;

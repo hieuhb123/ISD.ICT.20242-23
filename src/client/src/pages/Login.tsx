@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Vui lòng kiểm tra lại đường dẫn import AuthContext của bạn
-import { useAuth, User } from '../contexts/AuthContext'; 
+import { User } from '../types';
+import { useAuth } from '../contexts/AuthContext'; 
 
 const Login: React.FC = () => {
     const { login } = useAuth();

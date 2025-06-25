@@ -1,6 +1,6 @@
 package com.media_shop.service.implementation;
 
-import com.media_shop.dto.CartProductDTO;
+import com.media_shop.dto.CartItemDTO;
 import com.media_shop.entity.cart.Cart;
 import com.media_shop.entity.cart.CartItem;
 import com.media_shop.entity.product.Product;
@@ -25,14 +25,13 @@ public class CartServiceImpl implements CartService {
         this.cartRepository = cartRepository;
     }
 
-    @Override
-    public Cart createCart() {
-        return cartRepository.save(new Cart());
+    public Cart getCart(String cartId) {
+        return cartRepository.findById(cartId).orElse(new Cart(cartId, new ArrayList<>(), 0));
     }
 
     @Override
-    public Cart getCart(String cartId) {
-        return cartRepository.findById(cartId).orElse(new Cart(cartId, new ArrayList<>(), 0));
+    public Cart createCart() {
+        return cartRepository.save(new Cart());
     }
 
     @Override
@@ -96,9 +95,9 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartProductDTO> getAllCartItems(String cartId) {
+    public List<CartItemDTO> getAllCartItems(String cartId) {
         Cart cart = getCart(cartId);
-        List<CartProductDTO> result = new ArrayList<>();
+        List<CartItemDTO> result = new ArrayList<>();
         if (cart.getListCartItem() != null) {
             for (CartItem item : cart.getListCartItem()) {
                 Product product = productRepository.findById(item.getProductId()).orElse(null);
@@ -110,7 +109,7 @@ public class CartServiceImpl implements CartService {
                 } else {
                     statusCode = Constants.PRODUCT_STATUS_IN_STOCK_CODE; // Còn hàng
                 }
-                result.add(new CartProductDTO(product, statusCode, item.getQuantity()));
+                result.add(new CartItemDTO(product, statusCode, item.getQuantity()));
             }
         }
         return result;
