@@ -1,8 +1,9 @@
 import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CartItem } from '../types';
 import { getOrCreateUserId } from '../utils/userId';
 import { getOrCreateCartId } from '../utils/cartId';
+import { it } from 'node:test';
 
 const OrderPage: React.FC = () => {
     const location = useLocation();
@@ -11,18 +12,61 @@ const OrderPage: React.FC = () => {
     const [shippingAddress, setShippingAddress] = useState('');
     const [receiverName, setReceiverName] = useState('');
     const [phone, setPhone] = useState('');
+    const [isRushOrder, setIsRushOrder] = useState(false);
+
+    // Thêm state để quản lý validation
+    const [formErrors, setFormErrors] = useState({
+        receiverName: '',
+        phone: '',
+        shippingAddress: ''
+    });
+
+    // Hàm validate form
+    const validateForm = () => {
+        const errors = {
+            receiverName: '',
+            phone: '',
+            shippingAddress: ''
+        };
+        let isValid = true;
+
+        if (!receiverName.trim()) {
+            errors.receiverName = 'Vui lòng nhập tên người nhận';
+            isValid = false;
+        }
+
+        if (!phone.trim()) {
+            errors.phone = 'Vui lòng nhập số điện thoại';
+            isValid = false;
+        }
+
+        if (!shippingAddress.trim()) {
+            errors.shippingAddress = 'Vui lòng nhập địa chỉ giao hàng';
+            isValid = false;
+        }
+
+        setFormErrors(errors);
+        return isValid;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
         const userId = await getOrCreateUserId();
         const cartId = await getOrCreateCartId();
         const order = {
-            userId: userId, // TODO: Lấy userId thực tế từ context hoặc localStorage
-            shippingAddress: receiverName + '|' + phone + '|' + shippingAddress,
+            userId: userId,
+            shippingInfo: receiverName + '|' + phone ,
             items: items.map((item: CartItem) => ({
                 productId: item.product.id,
                 quantity: item.quantity,
             })),
+            province: shippingAddress,
+            isRushOrder: isRushOrder, // Thêm trường này
             createdAt: new Date().toISOString(),
         };
         console.log('Placing order:', order);
@@ -40,6 +84,16 @@ const OrderPage: React.FC = () => {
             alert('Đặt hàng thất bại!');
         }
     };
+
+    // Kiểm tra tất cả sản phẩm phải hỗ trợ rush delivery
+    const hasRushDeliveryProducts = items.length > 0 && items.every((item: CartItem) => item.product.rushDeliverySupport);
+
+    // Nếu có sản phẩm không hỗ trợ rush delivery, tắt tùy chọn này
+    useEffect(() => {
+        if (!hasRushDeliveryProducts && isRushOrder) {
+            setIsRushOrder(false);
+        }
+    }, [hasRushDeliveryProducts, isRushOrder]);
 
     return (
         <div className="container py-4">
@@ -80,35 +134,72 @@ const OrderPage: React.FC = () => {
                     <h3>Thông tin giao hàng</h3>
                     <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
                         <div className="mb-3">
-                            <label className="form-label">Tên người nhận</label>
+                            <label className="form-label">Tên người nhận *</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className={`form-control ${formErrors.receiverName ? 'is-invalid' : ''}`}
                                 value={receiverName}
                                 onChange={e => setReceiverName(e.target.value)}
                                 required
                             />
+                            {formErrors.receiverName && (
+                                <div className="invalid-feedback">
+                                    {formErrors.receiverName}
+                                </div>
+                            )}
                         </div>
+
                         <div className="mb-3">
-                            <label className="form-label">Số điện thoại</label>
+                            <label className="form-label">Số điện thoại *</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className={`form-control ${formErrors.phone ? 'is-invalid' : ''}`}
                                 value={phone}
                                 onChange={e => setPhone(e.target.value)}
                                 required
                             />
+                            {formErrors.phone && (
+                                <div className="invalid-feedback">
+                                    {formErrors.phone}
+                                </div>
+                            )}
                         </div>
+
                         <div className="mb-3">
-                            <label className="form-label">Địa chỉ giao hàng</label>
+                            <label className="form-label">Địa chỉ giao hàng *</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className={`form-control ${formErrors.shippingAddress ? 'is-invalid' : ''}`}
                                 value={shippingAddress}
                                 onChange={e => setShippingAddress(e.target.value)}
                                 required
                             />
+                            {formErrors.shippingAddress && (
+                                <div className="invalid-feedback">
+                                    {formErrors.shippingAddress}
+                                </div>
+                            )}
                         </div>
+
+                        {/* Thêm checkbox Rush Order nếu có sản phẩm hỗ trợ */}
+                        {hasRushDeliveryProducts && (
+                            <div className="mb-3 form-check">
+                                <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="rushOrder"
+                                    checked={isRushOrder}
+                                    onChange={e => setIsRushOrder(e.target.checked)}
+                                />
+                                <label className="form-check-label" htmlFor="rushOrder">
+                                    Giao hàng nhanh (Rush Order)
+                                </label>
+                                <small className="form-text text-muted d-block">
+                                    Phí giao hàng nhanh sẽ được tính thêm
+                                </small>
+                            </div>
+                        )}
+
                         <button type="submit" className="btn btn-primary">
                             Đặt hàng
                         </button>

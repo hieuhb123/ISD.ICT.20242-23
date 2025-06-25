@@ -56,4 +56,18 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<media_shopResponse<Cart>> updateItemQuantity(
+            @PathVariable String cartId,
+            @PathVariable String productId,
+            @RequestParam int quantity) {
+        Cart updatedCart = cartService.updateItemQuantity(cartId, productId, quantity);
+        media_shopResponse<Cart> response = new media_shopResponse<>(
+            Constants.SUCCESS_CODE,
+            "Update quantity successfully",
+            updatedCart
+        );
+        return ResponseEntity.ok(response);
+}
+
 }

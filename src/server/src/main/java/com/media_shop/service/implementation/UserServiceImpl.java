@@ -277,6 +277,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<Product> getProductsByManager(String userId) {
+        ProductManager manager = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Product Manager not found"));
+        
+        if (manager.getOwnProductIds() == null || manager.getOwnProductIds().isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        return productRepository.findAllById(manager.getOwnProductIds());
+    }
+
+    @Override
     public Product getProductById(String id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));

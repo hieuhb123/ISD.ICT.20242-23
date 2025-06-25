@@ -25,7 +25,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product viewProduct(String id){
         Product product = productRepository.findById(id).orElse(null);
-        System.out.println("Product found: " + product);
         if (product != null) {
             return product;
         } else {

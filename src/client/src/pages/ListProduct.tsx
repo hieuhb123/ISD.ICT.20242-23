@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { MediaItem } from '../types'; // Giả sử bạn có User trong types.ts
 import { useAuth } from '../contexts/AuthContext';
 
-// --- LOGIC API ---
-const API_BASE_URL = 'http://localhost:8080/api/product';
 type MediaShopResponse<T> = { code: number; message: string; data?: T; };
 
 // THAY ĐỔI: Cải thiện handleApiResponse để xử lý các response không có body (phổ biến với DELETE)
@@ -24,8 +22,8 @@ async function handleApiResponse<T>(response: Response): Promise<T> {
     return json.data as T;
 }
 
-const getAllProducts = (): Promise<MediaItem[]> => {
-    return fetch(`${API_BASE_URL}/all`).then(res => handleApiResponse<MediaItem[]>(res));
+const getAllProducts = (userId: string): Promise<MediaItem[]> => {
+    return fetch(`http://localhost:8080/api/ProductManager/products?userId=${userId}`).then(res => handleApiResponse<MediaItem[]>(res));
 };
 
 // THAY ĐỔI: Cập nhật hàm xóa sản phẩm để gửi kèm userId
@@ -58,11 +56,10 @@ const ProductList: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
     useEffect(() => {
-        // ... không thay đổi
         if (currentUser) {
             const fetchProducts = async () => {
                 try {
-                    const productList = await getAllProducts();
+                    const productList = await getAllProducts(currentUser.id);
                     setProducts(Array.isArray(productList) ? productList : []);
                 } catch (err: any) {
                     setError(err.message);

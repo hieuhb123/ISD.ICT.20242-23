@@ -10,6 +10,7 @@ import java.util.List;
 public interface CartService {
     Cart createCart();
     Cart addItem(String cartId, String productID, int quantity);
+    Cart updateItemQuantity(String cartId, String productId, int newQuantity);
     Cart removeItem(String cartId, String productID);
     Cart clearCart(String cartId);
     double getTotalPrice(String cartId);
