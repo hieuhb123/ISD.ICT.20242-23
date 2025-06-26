@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-<<<<<<< HEAD
 import { MediaItem} from '../types'; 
-=======
-import { MediaItem } from '../types'; // Giả sử bạn có User trong types.ts
->>>>>>> 65016f31123833e734826acc92b05ead7e396c5f
+
 import { useAuth } from '../contexts/AuthContext';
 
 type MediaShopResponse<T> = { code: number; message: string; data?: T; };

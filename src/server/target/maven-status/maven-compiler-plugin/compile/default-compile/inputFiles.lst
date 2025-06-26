@@ -8,7 +8,6 @@ D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\co
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\controller\ProductManagerController.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\controller\VNPayController.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\dto\CartItemDTO.java
-D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\dto\CartProductDTO.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\dto\CheckoutRequest.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\cart\Cart.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\cart\CartItem.java

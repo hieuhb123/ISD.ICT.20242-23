@@ -69,6 +69,5 @@ com\media_shop\repository\product\ProductRepository.class
 com\media_shop\entity\delivery\DeliveryInfo.class
 com\media_shop\entity\product\CD.class
 com\media_shop\entity\product\DVD.class
-com\media_shop\dto\CartProductDTO.class
 com\media_shop\exception\pay\SuspiciousTransactionException.class
 com\media_shop\exception\ProductSizeException.class
