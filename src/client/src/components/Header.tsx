@@ -2,47 +2,44 @@
 
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-// Lỗi import logo được khắc phục bằng cách sử dụng URL trực tiếp bên dưới.
-// import logo from '../assets/logoshop.png'; 
-
-// ===================================================================================
-// !!! LỖI Ở ĐÂY: Vui lòng kiểm tra và sửa lại đường dẫn bên dưới !!!
-// 
-// Trình biên dịch không thể tìm thấy file AuthContext.tsx vì đường dẫn này có thể sai.
-// Bạn cần sửa nó để trỏ đến đúng vị trí file trong dự án của bạn.
-//
-// Một vài ví dụ về đường dẫn đúng có thể là:
-// import { useAuth } from '../contexts/AuthContext'; // Nếu thư mục 'contexts' ngang hàng với thư mục hiện tại
-// import { useAuth } from '~/contexts/AuthContext'; // Nếu bạn dùng absolute path
-//
-import { useAuth } from '../contexts/AuthContext'; 
+import { useAuth } from '../contexts/AuthContext';
 // ===================================================================================
 
 import logo from '../assets/logoshop.png';
-// Đổi tên component thành Header cho đúng chức năng
+
+/**
+ * Định nghĩa kiểu cho người dùng, được sử dụng trong AuthContext.
+ * type User = {
+ * id: string;
+ * name: string;
+ * role: 'Product Manager' | 'Admin';
+ * };
+ */
+
+// Component Header hiển thị thanh điều hướng chính của trang web.
 const Header: React.FC = () => {
-    // Lấy thông tin người dùng và hàm logout từ Context
+    // Lấy thông tin người dùng hiện tại và hàm logout từ AuthContext.
     const { currentUser, logout } = useAuth();
     const navigate = useNavigate();
 
-    // Hàm xử lý khi người dùng nhấn nút Đăng xuất
+    // Hàm xử lý sự kiện khi người dùng nhấn nút Đăng xuất.
     const handleLogout = () => {
-        logout();
+        logout(); // Gọi hàm logout từ context
         navigate('/login'); // Điều hướng về trang đăng nhập sau khi logout
     };
 
     return (
         <header>
-            {/* Phần top-bar với các icon điều h    ướng chính */}
+            {/* Thanh điều hướng chính màu tối ở trên cùng */}
             <div className="px-3 py-2 text-bg-dark border-bottom">
                 <div className="container">
                     <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                        {/* Logo */}
+                        {/* Logo và link về trang chủ */}
                         <Link to="/" className="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
                             <img src={logo} alt="Logo" height={40} />
                         </Link>
 
-                        {/* Các link điều hướng */}
+                        {/* Danh sách các link điều hướng */}
                         <ul className="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
                             <li>
                                 <NavLink
@@ -56,7 +53,7 @@ const Header: React.FC = () => {
                                 </NavLink>
                             </li>
                             <li>
-                                <NavLink
+                                <NavLink 
                                     to="/cart"
                                     className={({ isActive }) => 'nav-link text-white' + (isActive ? ' active' : '')}
                                 >
@@ -77,19 +74,36 @@ const Header: React.FC = () => {
                                     View Order
                                 </NavLink>
                             </li>
+
+                            {/* --- NÚT DÀNH RIÊNG CHO QUẢN LÝ --- */}
+                            {/* Chỉ hiển thị nếu người dùng có vai trò là 'Product Manager' HOẶC 'Admin' */}
+                            {currentUser && (currentUser.role === 'Product Manager' || currentUser.role === 'Admin') && (
+                                <li>
+                                    <NavLink
+                                        to="/api/ProductManager/list-product"
+                                        className={({ isActive }) => 'nav-link text-white' + (isActive ? ' active' : '')}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" className="bi bi-box-seam d-block mx-auto mb-1" viewBox="0 0 16 16">
+                                            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-2.404.961L8.846 3.5l2.404-.961zM7.5 5.961 4.404 4.5 1.846 5.5l2.404.961zm1 0L11.596 4.5 14.154 5.5l-2.404.961zM.5 6.5l2.5.999V14.5a.5.5 0 0 0 .5.5h1.5a.5.5 0 0 0 .5-.5V8.207l2.499.999 2.501-.999V15a.5.5 0 0 0 .5.5h1.5a.5.5 0 0 0 .5-.5V8.207l2.5-.999L15.5 6.5z"/>
+                                        </svg>
+                                        Manage Products
+                                    </NavLink>
+                                </li>
+                            )}
+                            {/* ------------------------------------ */}
                         </ul>
                     </div>
                 </div>
             </div>
 
-            {/* Phần bar thứ hai với thanh tìm kiếm và nút Login/Logout */}
+            {/* Thanh thứ hai chứa form tìm kiếm và nút Login/Logout */}
             <div className="px-3 py-2 border-bottom mb-3">
                 <div className="container d-flex flex-wrap justify-content-center">
                     <form className="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
-                        
+                        {/* Phần tìm kiếm có thể thêm vào đây */}
                     </form>
 
-                    {/* Hiển thị có điều kiện dựa trên trạng thái đăng nhập */}
+                    {/* Hiển thị nút Login/Logout hoặc thông tin người dùng */}
                     <div className="text-end">
                         {currentUser ? (
                             // Giao diện khi người dùng ĐÃ đăng nhập
@@ -113,5 +127,4 @@ const Header: React.FC = () => {
     );
 };
 
-// Đảm bảo export với tên Header
 export default Header;
