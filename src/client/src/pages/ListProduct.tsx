@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MediaItem, User } from '../types'; // Giả sử bạn có User trong types.ts
+import { MediaItem} from '../types'; 
 import { useAuth } from '../contexts/AuthContext';
 
 // --- LOGIC API ---
