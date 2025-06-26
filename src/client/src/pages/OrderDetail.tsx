@@ -41,7 +41,7 @@ const OrderDetail: React.FC = () => {
                         <tr key={idx}>
                             <td>
                                 {item.imageURL && (
-                                    <img src={item.imageURL as string} width={60} />
+                                    <img src={item.imageURL?.toString()} alt={item.title?.toString() || item.productId?.toString() || "Product image"} width={60} />
                                 )}
                             </td>
                             <td>{item.title || item.productId}</td>

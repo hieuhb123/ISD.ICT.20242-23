@@ -43,6 +43,18 @@ public class ProductManagerController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/signup")
+    public ResponseEntity<media_shopResponse<ProductManager>> createUser(@RequestBody ProductManager registerRequest) {
+        try {
+            ProductManager user = userService.createUser(registerRequest.getUsername(), registerRequest.getPassword());
+            media_shopResponse<ProductManager> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Create new user successfully", user);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            media_shopResponse<ProductManager> response = new media_shopResponse<>(Constants.ERROR_CODE, e.getMessage(), null);
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @PutMapping("/change-password")
     public ResponseEntity<media_shopResponse<ProductManager>> changePassword(@RequestParam String userId, @RequestParam String currentPassword, @RequestParam String newPassword) {
         ProductManager user = userService.changePassword(userId, currentPassword, newPassword);
@@ -156,6 +168,17 @@ public class ProductManagerController {
         }
         Product newProduct = userService.updatePrice(id, newPrice);
         media_shopResponse<Product> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Update price successfully", newProduct);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<media_shopResponse<List<Product>>> getAllMyProducts(@RequestParam String userId) {
+        List<Product> products = userService.getProductsByManager(userId);
+        media_shopResponse<List<Product>> response = new media_shopResponse<>(
+            Constants.SUCCESS_CODE, 
+            "Get all products successfully", 
+            products
+        );
         return ResponseEntity.ok(response);
     }
 }

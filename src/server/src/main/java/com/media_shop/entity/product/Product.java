@@ -33,6 +33,6 @@ public class Product {
     protected double weight;
     protected String dimension;
     protected String imageURL;
-    protected boolean isDeleted; // Giữ nguyên tên gốc
+    protected boolean isDeleted;
     private boolean rushDeliverySupport;
 }

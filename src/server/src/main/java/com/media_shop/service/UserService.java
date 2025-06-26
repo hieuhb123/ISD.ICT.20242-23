@@ -35,6 +35,6 @@ public interface UserService {
     Product updatePrice(String productId, int newPrice);
 
     String getURLImage(Cloudinary cloudinary, MultipartFile image) throws IOException ;
-
+    List<Product> getProductsByManager(String userId);
     Product getProductById(String id);
 }

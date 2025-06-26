@@ -17,6 +17,7 @@ import OrderDetail from './pages/OrderDetail';
 import AddProduct from './pages/AddProduct';
 import ListProduct from './pages/ListProduct';
 import UpdateProduct from './pages/UpdateProduct';
+import SignUp from './pages/Sign-up';
 
 //... các import khác
 
@@ -34,7 +35,7 @@ const App: React.FC = () => (
         <Route path="/order" element={<Order />} />
         <Route path="/vieworder" element={<ViewOrder />} />
         <Route path="/order/:orderId" element={<OrderDetail />} />
-
+        <Route path="/signup" element={<SignUp />} />
         {/* === THAY ĐỔI Ở ĐÂY === */}
         {/* Nhóm các route dành cho Product Manager */}
         <Route path="/api/ProductManager/list-product" element={<ListProduct />} />

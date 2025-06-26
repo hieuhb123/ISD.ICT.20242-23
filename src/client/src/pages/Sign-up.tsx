@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-import { User } from '../types';
-import { useAuth } from '../contexts/AuthContext'; 
-
-const Login: React.FC = () => {
-    const { login } = useAuth();
+const SignUp: React.FC = () => {
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('pm');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -25,51 +22,55 @@ const Login: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        // Validation
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
+
+        if (username.length < 3) {
+            setError('Username must be at least 3 characters');
+            return;
+        }
+
         setIsLoading(true);
 
         try {
             let url = '';
             if (role === 'pm') {
-                url = 'http://localhost:8080/api/ProductManager/login';
+                url = 'http://localhost:8080/api/ProductManager/signup';
             } else if (role === 'admin') {
-                url = 'http://localhost:8080/api/admin/login';
+                url = 'http://localhost:8080/api/admin/signup';
             }
 
             const res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    username: email,
+                    username: username,
                     password: password
                 }),
             });
 
             const data = await res.json();
 
-
             if (isMountedRef.current) {
-                if (res.ok && data.code === 1 && data.data) {
-                    
-                    // =======================================================================
-                    // === SỬA LỖI Ở ĐÂY ===
-                    // Lấy 'username' từ API và gán vào thuộc tính 'name' của Context
-                    const userToLogin: User = {
-                        id: data.data.id,
-                        name: data.data.username, // Sửa từ data.data.name thành data.data.username
-                        role: 'Product Manager'
-                    };
-                    // =======================================================================
-                    
-                    login(userToLogin);
-                    navigate('/api/ProductManager/list-product');
-
+                if (res.ok && data.code === 1) {
+                    alert('Account created successfully! Please login.');
+                    navigate('/login');
                 } else {
-                    setError(data.message || 'Login failed');
+                    setError(data.message || 'Registration failed');
                 }
             }
         } catch (err) {
             if (isMountedRef.current) {
-                setError('Login failed. Please check your connection.');
+                setError('Registration failed. Please check your connection.');
             }
         } finally {
             if (isMountedRef.current) {
@@ -82,20 +83,22 @@ const Login: React.FC = () => {
         <main className="form-signin w-100 m-auto" style={{ maxWidth: 330, padding: '1rem' }}>
             <form onSubmit={handleSubmit}>
                 <img className="mb-4" src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57" />
-                <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
+                <h1 className="h3 mb-3 fw-normal">Create Account</h1>
+                
                 <div className="form-floating mb-2">
                     <input
                         type="text"
                         className="form-control"
-                        id="floatingInput"
-                        placeholder="name@example.com"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
+                        id="floatingUsername"
+                        placeholder="Username"
+                        value={username}
+                        onChange={e => setUsername(e.target.value)}
                         required
                         disabled={isLoading}
                     />
-                    <label htmlFor="floatingInput">Email address</label>
+                    <label htmlFor="floatingUsername">Username</label>
                 </div>
+
                 <div className="form-floating mb-2">
                     <input
                         type="password"
@@ -109,50 +112,64 @@ const Login: React.FC = () => {
                     />
                     <label htmlFor="floatingPassword">Password</label>
                 </div>
-                <button className="btn btn-primary w-100 py-2" type="submit" disabled={isLoading}>
-                    {isLoading ? 'Signing in...' : 'Sign in'}
-                </button>
-                <div className="list-group mt-2">
+
+                <div className="form-floating mb-2">
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="floatingConfirmPassword"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        required
+                        disabled={isLoading}
+                    />
+                    <label htmlFor="floatingConfirmPassword">Confirm Password</label>
+                </div>
+
+                <div className="list-group mb-3">
                     <label className="list-group-item d-flex gap-2">
                         <input
                             className="form-check-input flex-shrink-0"
                             type="radio"
-                            name="listGroupRadios"
-                            id="product_manager"
+                            name="roleRadios"
+                            id="product_manager_signup"
                             value="pm"
                             checked={role === 'pm'}
                             onChange={() => setRole('pm')}
                             disabled={isLoading}
                         />
-                        <span>
-                            Product Manager
-                        </span>
+                        <span>Product Manager</span>
                     </label>
                     <label className="list-group-item d-flex gap-2">
                         <input
                             className="form-check-input flex-shrink-0"
                             type="radio"
-                            name="listGroupRadios"
-                            id="admin"
+                            name="roleRadios"
+                            id="admin_signup"
                             value="admin"
                             checked={role === 'admin'}
                             onChange={() => setRole('admin')}
                             disabled={isLoading}
                         />
-                        <span>
-                            Admin
-                        </span>
+                        <span>Admin</span>
                     </label>
                 </div>
+
+                <button className="btn btn-primary w-100 py-2" type="submit" disabled={isLoading}>
+                    {isLoading ? 'Creating Account...' : 'Sign Up'}
+                </button>
+
                 <div className="text-center mt-3">
-                    <Link to="/signup" className="text-decoration-none">
-                        Don't have an account? Sign up
+                    <Link to="/login" className="text-decoration-none">
+                        Already have an account? Sign in
                     </Link>
                 </div>
+
                 {error && <div className="alert alert-danger py-1 mt-2">{error}</div>}
             </form>
         </main>
     );
 };
 
-export default Login;
+export default SignUp;

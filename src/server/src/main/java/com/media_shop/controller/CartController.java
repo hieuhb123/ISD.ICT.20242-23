@@ -1,6 +1,6 @@
 package com.media_shop.controller;
 
-import com.media_shop.dto.CartProductDTO;
+import com.media_shop.dto.CartItemDTO;
 import com.media_shop.entity.cart.Cart;
 import com.media_shop.repository.media_shopResponse;
 import com.media_shop.service.CartService;
@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/cart")
 public class CartController {
 
@@ -23,9 +22,9 @@ public class CartController {
     }
 
     @GetMapping("/{cartId}")
-    public ResponseEntity<media_shopResponse<List<CartProductDTO>>> getCart(@PathVariable String cartId) {
-        List<CartProductDTO> cart = cartService.getAllCartItems(cartId);
-        media_shopResponse<List<CartProductDTO>> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Get cart successfully", cart);
+    public ResponseEntity<media_shopResponse<List<CartItemDTO>>> getCart(@PathVariable String cartId) {
+        List<CartItemDTO> cart = cartService.getAllCartItems(cartId);
+        media_shopResponse<List<CartItemDTO>> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Get cart successfully", cart);
         return ResponseEntity.ok(response);
     }
 
@@ -56,5 +55,19 @@ public class CartController {
         media_shopResponse<Cart> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Clear cart successfully", cart);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{cartId}/items/{productId}")
+    public ResponseEntity<media_shopResponse<Cart>> updateItemQuantity(
+            @PathVariable String cartId,
+            @PathVariable String productId,
+            @RequestParam int quantity) {
+        Cart updatedCart = cartService.updateItemQuantity(cartId, productId, quantity);
+        media_shopResponse<Cart> response = new media_shopResponse<>(
+            Constants.SUCCESS_CODE,
+            "Update quantity successfully",
+            updatedCart
+        );
+        return ResponseEntity.ok(response);
+}
 
 }
