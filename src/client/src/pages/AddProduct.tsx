@@ -209,7 +209,6 @@ const AddProduct: React.FC = () => {
         }
     };
 
-    // ... (phần return JSX chung không đổi)
     return (
         <div className="container mt-4">
             <h2>Add New Product</h2>

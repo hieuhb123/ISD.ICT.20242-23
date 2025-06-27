@@ -63,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 10% value-added tax (VAT)
         double vat = subtotal * 0.1;
-        double subtotalWithVat = subtotal + rushFee + vat;
+        double subtotalWithVat = subtotal + vat;
 
         double shippingFee = calculateShippingFee(maxWeight, order.getProvince(), subtotal, order.getIsRushOrder());
 

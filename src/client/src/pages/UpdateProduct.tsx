@@ -216,7 +216,7 @@ const UpdateProduct: React.FC = () => {
                 <div className="mb-3"><label className="form-label">Tiêu đề</label><input name="title" value={formData.title} onChange={handleChange} className="form-control" required /></div>
                 <div className="mb-3"><label className="form-label">Giá (VNĐ)</label><input type="number" name="price" value={formData.price} onChange={handleChange} className="form-control" required /></div>
                 <div className="mb-3"><label className="form-label">Số lượng tồn kho</label><input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" required /></div>
-                <div className="mb-3"><label className="form-label">Cân nặng (gram)</label><input type="number" name="weight" value={formData.weight} onChange={handleChange} className="form-control" required /></div>
+                <div className="mb-3"><label className="form-label">Cân nặng (kg)</label><input type="number" name="weight" value={formData.weight} onChange={handleChange} className="form-control" required /></div>
                 <div className="mb-3"><label className="form-label">Mô tả</label><textarea name="description" value={formData.description || ''} onChange={handleChange} className="form-control" rows={4} /></div>
                 <div className="form-check mb-3"><input id="rush-delivery" className="form-check-input" type="checkbox" name="rushDeliverySupport" checked={formData.rushDeliverySupport || false} onChange={handleChange} /><label className="form-check-label" htmlFor="rush-delivery">Hỗ trợ giao hàng hỏa tốc</label></div>
 
