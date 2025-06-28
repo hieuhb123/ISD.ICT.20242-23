@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Order } from "../types"; // Assuming you've defined Order type in types.ts
+import { Order } from "../types";
 import { getOrCreateUserId } from '../utils/userId';
 import { useNavigate } from "react-router-dom";
 
@@ -47,7 +47,9 @@ const ViewOrder: React.FC = () => {
                                 <td>{order.createdAt ? new Date(order.createdAt).toLocaleString() : ""}</td>
                                 <td>{order.shippingInfo}</td>
                                 <td>{order.province}</td>
-                                <td>{order.status}</td>
+                                {order.status === 'cancelled' ? (
+                                    <td className='text-danger'>{order.status}</td>
+                                ) : (<td>{order.status}</td>)}
                                 <td>{order.total?.toLocaleString('vi-VN')}₫</td>
                                 <td>
                                     <button
@@ -58,7 +60,7 @@ const ViewOrder: React.FC = () => {
                                     </button>
                                 </td>
                                 <td>
-                                    {order.status !== "PAID" && (
+                                    {order.status !== "PAID" && order.status !== 'cancelled' && (
                                         <button
                                             className="btn btn-sm btn-success"
                                             onClick={async () => {
@@ -76,7 +78,38 @@ const ViewOrder: React.FC = () => {
                                         </button>
                                     )}
                                     {order.status === "PAID" && (
-                                        <span className="badge bg-success">Paid</span>
+                                        <div className="flex items-center gap-4">
+                                            <span className="badge bg-success">Paid</span>
+
+                                            <button
+                                                onClick={async () => {
+                                                    const confirmCancel = window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?");
+                                                    if (!confirmCancel) return;
+
+                                                    try {
+                                                        const res = await fetch(`http://localhost:8080/api/orders/cancel/${order.id}`, {
+                                                            method: 'PUT',
+                                                        });
+
+                                                        const data = await res.json();
+
+                                                        if (res.ok) {
+                                                            alert("Đơn hàng đã được hủy thành công!");
+                                                            console.log("Biên lai hoàn tiền: ", data.data.refund);
+                                                            alert(`Hoàn tiền thành công số tiền: ${data.data.refund.amount}đ\nMã: ${data.data.refund.id}`);
+                                                            window.location.reload();
+                                                        } else {
+                                                            alert("Hủy đơn hàng thất bại: " + data.message);
+                                                        }
+                                                    } catch (error) {
+                                                        alert("Đã xảy ra lỗi khi hủy đơn hàng: " + error);
+                                                    }
+                                                }}
+                                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                                            >
+                                                Hủy đơn hàng
+                                            </button>
+                                        </div>
                                     )}
                                 </td>
                             </tr>
