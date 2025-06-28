@@ -6,18 +6,81 @@ import { useNavigate } from "react-router-dom";
 const ViewOrder: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchOrders = async () => {
+        fetchOrders();
+    }, []);
+
+    const fetchOrders = async () => {
+        try {
             const userId = await getOrCreateUserId();
             const res = await fetch(`http://localhost:8080/api/orders/user/${userId}`);
             const data = await res.json();
             setOrders(data.data || []);
+        } catch (error) {
+            console.error("Error fetching orders:", error);
+        } finally {
             setLoading(false);
-        };
-        fetchOrders();
-    }, []);
+        }
+    };
+
+    const handleCancelOrder = async (orderId: string) => {
+        const confirmCancel = window.confirm("Are you sure you want to cancel this order?");
+        if (!confirmCancel) return;
+
+        setCancellingOrderId(orderId);
+
+        try {
+            // First, get the payment transaction for this order
+            const paymentRes = await fetch(`http://localhost:8080/api/payment/transaction/${orderId}`);
+            const paymentData = await paymentRes.json();
+            console.log("Payment Data:", paymentData.data);
+            
+            if (!paymentRes.ok || !paymentData.data) {
+                throw new Error(paymentData.message || "Could not find payment transaction");
+            }
+            
+            // Prepare refund data
+            const refundData = {
+                transactionId: paymentData.data.transactionId || "",
+                orderId: orderId,
+                errorCode: "00", // Assuming this is a success code
+                vnp_Amount: paymentData.data.vnp_Amount,
+                vnp_TransactionNo: paymentData.data.vnp_TransactionNo,
+                transactionContent: "Refund for cancelled order",
+                message: "",
+                vnp_PayDate: paymentData.data.vnp_PayDate
+            };
+            
+            // Call refund endpoint
+            const refundRes = await fetch(`http://localhost:8080/api/payment/refund`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(refundData)
+            });
+            
+            const refundResult = await refundRes.json();
+            
+            if (refundRes.ok && refundResult.code === 1) {
+                alert("Order cancelled successfully!");
+                alert(`Refund successful. Amount: ${(refundResult.data.amount).toLocaleString('vi-VN')}₫\nTransaction ID: ${refundResult.data.id}`);
+                
+                // Refresh orders to show updated status
+                await fetchOrders();
+            } else {
+                throw new Error(refundResult.message || "Refund failed");
+            }
+        } catch (error) {
+            console.error("Error cancelling order:", error);
+            alert(`An error occurred while cancelling the order: ${error instanceof Error ? error.message : String(error)}`);
+        } finally {
+            setCancellingOrderId(null);
+        }
+    };
 
     return (
         <div className="container py-4">
@@ -47,9 +110,15 @@ const ViewOrder: React.FC = () => {
                                 <td>{order.createdAt ? new Date(order.createdAt).toLocaleString() : ""}</td>
                                 <td>{order.shippingInfo}</td>
                                 <td>{order.province}</td>
-                                {order.status === 'cancelled' ? (
-                                    <td className='text-danger'>{order.status}</td>
-                                ) : (<td>{order.status}</td>)}
+                                <td>
+                                    {order.status === 'cancelled' ? (
+                                        <span className="badge bg-danger">Cancelled</span>
+                                    ) : order.status === 'PAID' ? (
+                                        <span className="badge bg-success">Paid</span>
+                                    ) : (
+                                        <span className="badge bg-warning text-dark">Pending</span>
+                                    )}
+                                </td>
                                 <td>{order.total?.toLocaleString('vi-VN')}₫</td>
                                 <td>
                                     <button
@@ -78,36 +147,20 @@ const ViewOrder: React.FC = () => {
                                         </button>
                                     )}
                                     {order.status === "PAID" && (
-                                        <div className="flex items-center gap-4">
-                                            <span className="badge bg-success">Paid</span>
-
+                                        <div className="d-flex align-items-center gap-2">
                                             <button
-                                                onClick={async () => {
-                                                    const confirmCancel = window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?");
-                                                    if (!confirmCancel) return;
-
-                                                    try {
-                                                        const res = await fetch(`http://localhost:8080/api/orders/cancel/${order.id}`, {
-                                                            method: 'PUT',
-                                                        });
-
-                                                        const data = await res.json();
-
-                                                        if (res.ok) {
-                                                            alert("Đơn hàng đã được hủy thành công!");
-                                                            console.log("Biên lai hoàn tiền: ", data.data.refund);
-                                                            alert(`Hoàn tiền thành công số tiền: ${data.data.refund.amount}đ\nMã: ${data.data.refund.id}`);
-                                                            window.location.reload();
-                                                        } else {
-                                                            alert("Hủy đơn hàng thất bại: " + data.message);
-                                                        }
-                                                    } catch (error) {
-                                                        alert("Đã xảy ra lỗi khi hủy đơn hàng: " + error);
-                                                    }
-                                                }}
-                                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                                                onClick={() => handleCancelOrder(order.id!)}
+                                                className="btn btn-sm btn-danger"
+                                                disabled={cancellingOrderId === order.id}
                                             >
-                                                Hủy đơn hàng
+                                                {cancellingOrderId === order.id ? (
+                                                    <>
+                                                        <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                                        Processing...
+                                                    </>
+                                                ) : (
+                                                    'Cancel Order'
+                                                )}
                                             </button>
                                         </div>
                                     )}

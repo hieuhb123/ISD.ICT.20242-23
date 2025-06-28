@@ -37,9 +37,6 @@ const OrderPage: React.FC = () => {
         if (!phone.trim()) {
             errors.phone = 'Please enter phone number';
             isValid = false;
-        } else if (!/^[0-9]{10}$/.test(phone)) {
-            errors.phone = 'Invalid phone number';
-            isValid = false;
         }
 
         if (!shippingAddress.trim()) {
@@ -153,11 +150,10 @@ const OrderPage: React.FC = () => {
                         <div className="mb-3">
                             <label className="form-label">Phone Number *</label>
                             <input
-                                type="tel"
+                                type="text"
                                 className={`form-control ${formErrors.phone ? 'is-invalid' : ''}`}
                                 value={phone}
                                 onChange={e => setPhone(e.target.value)}
-                                pattern="[0-9]{10}"
                                 required
                             />
                             {formErrors.phone && (

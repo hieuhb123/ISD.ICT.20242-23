@@ -38,7 +38,7 @@ public class VNPayService {
     }
 
     public RefundTransaction refund(PaymentTransaction paymentTransaction) throws IOException {
-        RefundRequest refundRequestVNPay = new RefundRequest(paymentTransaction);
+        RefundRequest refundRequestVNPay = new RefundRequest(paymentTransaction, orderRepository);
         String response = refundRequestVNPay.refund();
         Gson gson = new Gson();
         Type type = new com.google.gson.reflect.TypeToken<HashMap<String, String>>() {}.getType();
@@ -92,7 +92,7 @@ public class VNPayService {
             null,                         
             userId,          
             orderId,              
-            Long.parseLong(amount),
+            Long.parseLong(amount) / 100L,
             vnp_OrderInfo,         
             vnp_ResponseCode,      
             vnp_TransactionNo,     
@@ -105,6 +105,11 @@ public class VNPayService {
 
         return trans;
 
+    }
+
+        public PaymentTransaction getTransactionByOrderId(String orderId) {
+        return paymentTransactionRepository.findByOrderId(orderId)
+            .orElseThrow(() -> new RuntimeException("Transaction not found for order: " + orderId));
     }
 
 }
