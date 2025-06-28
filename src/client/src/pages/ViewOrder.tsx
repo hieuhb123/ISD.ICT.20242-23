@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Order } from "../types"; // Giả sử bạn đã định nghĩa kiểu Order trong types.ts
+import { Order } from "../types"; // Assuming you've defined Order type in types.ts
 import { getOrCreateUserId } from '../utils/userId';
 import { useNavigate } from "react-router-dom";
 
@@ -21,23 +21,23 @@ const ViewOrder: React.FC = () => {
 
     return (
         <div className="container py-4">
-            <h2>Danh sách đơn hàng của bạn</h2>
+            <h2>Your Order List</h2>
             {loading ? (
-                <p>Đang tải...</p>
+                <p>Loading...</p>
             ) : orders.length === 0 ? (
-                <p>Bạn chưa có đơn hàng nào.</p>
+                <p>You have no orders yet.</p>
             ) : (
                 <table className="table">
                     <thead>
                         <tr>
-                            <th>Mã đơn</th>
-                            <th>Ngày đặt</th>
-                            <th>Người nhận</th>
-                            <th>Địa chỉ giao hàng</th>
-                            <th>Trạng thái</th>
-                            <th>Tổng tiền</th>
-                            <th>Chi tiết</th>
-                            <th>Thanh toán</th> {/* Thêm cột này */}
+                            <th>Order ID</th>
+                            <th>Order Date</th>
+                            <th>Receiver</th>
+                            <th>Shipping Address</th>
+                            <th>Status</th>
+                            <th>Total Amount</th>
+                            <th>Details</th>
+                            <th>Payment</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,7 +54,7 @@ const ViewOrder: React.FC = () => {
                                         className="btn btn-sm btn-outline-primary"
                                         onClick={() => navigate(`/order/${order.id}`)}
                                     >
-                                        Xem
+                                        View
                                     </button>
                                 </td>
                                 <td>
@@ -62,13 +62,13 @@ const ViewOrder: React.FC = () => {
                                         <button
                                             className="btn btn-sm btn-success"
                                             onClick={async () => {
-                                                // Gọi API lấy link thanh toán
+                                                // Call API to get payment link
                                                 const res = await fetch(`http://localhost:8080/api/payment/pay?orderId=${order.id}`);
                                                 const data = await res.json();
                                                 if (data.data) {
-                                                    window.location.href = data.data; // Chuyển hướng sang VNPay
+                                                    window.location.href = data.data; // Redirect to VNPay
                                                 } else {
-                                                    alert("Không lấy được link thanh toán!");
+                                                    alert("Failed to get payment link!");
                                                 }
                                             }}
                                         >
@@ -76,7 +76,7 @@ const ViewOrder: React.FC = () => {
                                         </button>
                                     )}
                                     {order.status === "PAID" && (
-                                        <span className="badge bg-success">Đã thanh toán</span>
+                                        <span className="badge bg-success">Paid</span>
                                     )}
                                 </td>
                             </tr>
