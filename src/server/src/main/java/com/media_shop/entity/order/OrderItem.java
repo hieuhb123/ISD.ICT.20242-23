@@ -16,5 +16,4 @@ public class OrderItem {
     protected String imageURL;
     private int quantity;
     private double price;
-
 }

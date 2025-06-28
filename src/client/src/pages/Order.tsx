@@ -120,8 +120,8 @@ const OrderPage: React.FC = () => {
                                     </td>
                                     <td>{item.product.title}</td>
                                     <td>{item.quantity}</td>
-                                    <td>${item.product.price}</td>
-                                    <td>${Number(item.product.price) * item.quantity}</td>
+                                    <td>{item.product.price.toLocaleString('vi-VN')}₫</td>
+                                    <td>{(Number(item.product.price) * item.quantity).toLocaleString('vi-VN')}₫</td>
                                 </tr>
                             ))}
                         </tbody>
