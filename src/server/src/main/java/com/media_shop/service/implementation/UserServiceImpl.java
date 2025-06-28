@@ -295,4 +295,20 @@ public class UserServiceImpl implements UserService {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
     }
+
+    @Override
+    public ProductManager blockUser(String userId) {
+        ProductManager user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setBlockStatus(true);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public ProductManager unblockUser(String userId) {
+        ProductManager user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setBlockStatus(false);
+        return userRepository.save(user);
+    }
 }

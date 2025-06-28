@@ -21,6 +21,9 @@ public interface UserService {
     List<ProductManager> getAllProductManager();
     ProductManager login(String username, String password);
 
+    ProductManager blockUser(String userId);
+    ProductManager unblockUser(String userId);
+
     Product addCD(String userId, CD product);
     Product addBook(String userId, Book product);
     Product addDVD(String userId, DVD product);

@@ -74,7 +74,26 @@ const Admin: React.FC = () => {
     };
 
     // Delete user
-// Delete user
+    // Thêm hàm toggle block status
+    const handleToggleBlockStatus = async (userId: string, currentBlockStatus: boolean) => {
+        try {
+            const action = currentBlockStatus ? 'unblock' : 'block';
+            const res = await fetch(`http://localhost:8080/api/admin/${action}?userId=${userId}`, {
+                method: 'PUT'
+            });
+            
+            const data = await res.json();
+            if (data.code === 1) {
+                alert(`User ${currentBlockStatus ? 'unblocked' : 'blocked'} successfully!`);
+                fetchUsers(); // Refresh user list
+            } else {
+                alert(`Failed to ${action} user: ${data.message}`);
+            }
+        } catch (error) {
+            alert(`Error ${currentBlockStatus ? 'unblocking' : 'blocking'} user`);
+        }
+    };
+
     const handleDeleteUser = async (userId: string) => {
         if (!window.confirm('Are you sure you want to delete this user?')) return;
         
@@ -153,6 +172,7 @@ const Admin: React.FC = () => {
                                         <th>Username</th>
                                         <th>Created At</th>
                                         <th>Products Count</th>
+                                        <th>Status</th> {/* Thêm cột Status */}
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -171,8 +191,22 @@ const Admin: React.FC = () => {
                                                     {user.ownProductIds?.length || 0} products
                                                 </span>
                                             </td>
+                                            <td> {/* Hiển thị status */}
+                                                {user.blockStatus ? (
+                                                    <span className="badge bg-danger">Blocked</span>
+                                                ) : (
+                                                    <span className="badge bg-success">Active</span>
+                                                )}
+                                            </td>
                                             <td>
                                                 <div className="btn-group btn-group-sm">
+                                                    {/* Nút Block/Unblock */}
+                                                    <button 
+                                                        className={`btn ${user.blockStatus ? 'btn-outline-success' : 'btn-outline-secondary'}`}
+                                                        onClick={() => handleToggleBlockStatus(user.id, !!user.blockStatus)}
+                                                    >
+                                                        {user.blockStatus ? 'Unblock' : 'Block'}
+                                                    </button>
                                                     <button 
                                                         className="btn btn-outline-warning"
                                                         onClick={() => {
