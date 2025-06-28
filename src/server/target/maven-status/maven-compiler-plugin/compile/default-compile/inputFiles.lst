@@ -22,7 +22,9 @@ D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\en
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\product\DVD.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\product\Product.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\user\admin.java
+D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\user\DeletionLog.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\user\ProductManager.java
+D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\DailyDeleteLimitExceededException.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\IncorrectPasswordException.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\OrderCannotBeCancelledException.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\OrderNotFoundException.java
@@ -54,6 +56,7 @@ D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\re
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\product\ProductRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\transaction\PaymentTransactionRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\transaction\RefundTransactionRepository.java
+D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\user\DeletionLogRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\user\ProductManagerRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\service\CartService.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\service\implementation\CartServiceImpl.java
