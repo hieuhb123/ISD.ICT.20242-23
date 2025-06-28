@@ -107,7 +107,7 @@ const UpdateProduct: React.FC = () => {
         if (!id || !formData) return;
 
         if (!currentUser || currentUser.role !== 'Product Manager') {
-            setError("Bạn không có quyền thực hiện hành động này.");
+            setError("You do not have permission to perform this action.");
             return;
         }
 
@@ -127,7 +127,7 @@ const UpdateProduct: React.FC = () => {
 
             await updateProductDetails(id, dataToSend);
             
-            setSuccess("Cập nhật sản phẩm thành công! Đang điều hướng...");
+            setSuccess("Product updated successfully! Redirecting...");
             setTimeout(() => navigate('/api/ProductManager/list-product'), 2000);
 
         } catch (err: any) {
@@ -139,7 +139,7 @@ const UpdateProduct: React.FC = () => {
         }
     };
     
-    // === THAY ĐỔI LỚN: HOÀN THIỆN `renderSpecificFields` CHO TẤT CẢ CÁC LOẠI ===
+    // === renderSpecificFields` CHO TẤT CẢ CÁC LOẠI ===
     const renderSpecificFields = () => {
         if (!formData) return null;
 
@@ -147,14 +147,14 @@ const UpdateProduct: React.FC = () => {
             case 'book':
                 return (
                     <>
-                        <div className="mb-3"><label className="form-label">Tác giả</label><input name="author" value={formData.author || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Loại bìa</label><input name="coverType" value={formData.coverType || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Nhà xuất bản</label><input name="publisher" value={formData.publisher || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Ngày xuất bản</label><input type="date" name="publishDate" value={formData.publishDate?.split('T')[0] || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Số trang</label><input type="number" name="numOfPages" value={formData.numOfPages || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Ngôn ngữ</label><input name="language" value={formData.language || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Author</label><input name="author" value={formData.author || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Cover Type</label><input name="coverType" value={formData.coverType || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Publisher</label><input name="publisher" value={formData.publisher || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Publish Date</label><input type="date" name="publishDate" value={formData.publishDate?.split('T')[0] || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Number of Pages</label><input type="number" name="numOfPages" value={formData.numOfPages || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Language</label><input name="language" value={formData.language || ''} onChange={handleChange} className="form-control" /></div>
                         <div className="mb-3">
-                            <label className="form-label">Thể loại sách:</label>
+                            <label className="form-label">Book Category:</label>
                             {BOOK_CATEGORIES.map(category => (
                                 <div className="form-check" key={category}>
                                     <input className="form-check-input" type="checkbox" id={`category-${category}`} value={category} checked={(formData.bookCategory || []).includes(category)} onChange={handleCategoryCheckboxChange}/>
@@ -167,66 +167,66 @@ const UpdateProduct: React.FC = () => {
             case 'cd':
                 return (
                     <>
-                        <div className="mb-3"><label className="form-label">Nghệ sĩ</label><input name="artist" value={formData.artist || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Hãng thu âm</label><input name="recordLabel" value={formData.recordLabel || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Loại nhạc</label><input name="musicType" value={formData.musicType || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Ngày phát hành</label><input type="date" name="releasedDate" value={formData.releasedDate?.split('T')[0] || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Artist</label><input name="artist" value={formData.artist || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Record Label</label><input name="recordLabel" value={formData.recordLabel || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Music Type</label><input name="musicType" value={formData.musicType || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Release Date</label><input type="date" name="releasedDate" value={formData.releasedDate?.split('T')[0] || ''} onChange={handleChange} className="form-control" /></div>
                     </>
                 );
             case 'dvd':
                 return (
                     <>
-                        <div className="mb-3"><label className="form-label">Loại đĩa</label><input name="discType" value={formData.discType || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Đạo diễn</label><input name="director" value={formData.director || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Thời lượng (phút)</label><input name="duration" value={formData.duration || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Ngôn ngữ</label><input name="language" value={formData.language || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Phụ đề</label><input name="subtitles" value={formData.subtitles || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Ngày phát hành</label><input type="date" name="releasedDate" value={formData.releasedDate?.split('T')[0] || ''} onChange={handleChange} className="form-control" /></div>
-                        <div className="mb-3"><label className="form-label">Loại phim</label><input name="filmType" value={formData.filmType || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Disc Type</label><input name="discType" value={formData.discType || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Director</label><input name="director" value={formData.director || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Duration (minutes)</label><input name="duration" value={formData.duration || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Language</label><input name="language" value={formData.language || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Subtitles</label><input name="subtitles" value={formData.subtitles || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Release Date</label><input type="date" name="releasedDate" value={formData.releasedDate?.split('T')[0] || ''} onChange={handleChange} className="form-control" /></div>
+                        <div className="mb-3"><label className="form-label">Film Type</label><input name="filmType" value={formData.filmType || ''} onChange={handleChange} className="form-control" /></div>
                     </>
                 );
             default:
-                return <div className="alert alert-secondary">Sản phẩm không có thông tin chi tiết.</div>;
+                return <div className="alert alert-secondary">This product has no detailed information.</div>;
         }
     };
 
     if (!currentUser || currentUser.role !== 'Product Manager') {
         return (
             <div className="container mt-5"><div className="alert alert-warning">
-                <h2>Truy cập bị từ chối</h2>
-                <p>Vui lòng <Link to="/login">đăng nhập</Link> với tài khoản Quản lý sản phẩm để xem trang này.</p>
+                <h2>Access Denied</h2>
+                <p>Please <Link to="/login">log in</Link> with a Product Manager account to view this page.</p>
             </div></div>
         );
     }
     
-    if (isLoading) return <div className="container mt-4"><h2>Đang tải dữ liệu...</h2></div>;
+    if (isLoading) return <div className="container mt-4"><h2>Loading data...</h2></div>;
     if (error && !success) return <div className="container mt-4"><div className="alert alert-danger">{error}</div></div>;
-    if (!formData) return <div className="container mt-4"><h2>Không tìm thấy sản phẩm hoặc bạn không có quyền truy cập.</h2></div>;
+    if (!formData) return <div className="container mt-4"><h2>Product not found or you do not have access.</h2></div>;
 
     return (
         <div className="container mt-4">
-            <h2>Chỉnh sửa sản phẩm: <span style={{color: '#0d6efd'}}>{originalData?.title}</span></h2>
-            <p><strong>Loại sản phẩm:</strong> {formData.productType.toUpperCase()}</p>
+            <h2>Edit Product: <span style={{color: '#0d6efd'}}>{originalData?.title}</span></h2>
+            <p><strong>Product Type:</strong> {formData.productType.toUpperCase()}</p>
             
             <form onSubmit={handleSubmit} noValidate>
                 {success && <div className="alert alert-success">{success}</div>}
                 {error && <div className="alert alert-danger">{error}</div>}
                 
-                <h4>Thông tin chung</h4>
-                <div className="mb-3"><label className="form-label">Tiêu đề</label><input name="title" value={formData.title} onChange={handleChange} className="form-control" required /></div>
-                <div className="mb-3"><label className="form-label">Giá (VNĐ)</label><input type="number" name="price" value={formData.price} onChange={handleChange} className="form-control" required /></div>
-                <div className="mb-3"><label className="form-label">Số lượng tồn kho</label><input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" required /></div>
-                <div className="mb-3"><label className="form-label">Cân nặng (kg)</label><input type="number" name="weight" value={formData.weight} onChange={handleChange} className="form-control" required /></div>
-                <div className="mb-3"><label className="form-label">Mô tả</label><textarea name="description" value={formData.description || ''} onChange={handleChange} className="form-control" rows={4} /></div>
-                <div className="form-check mb-3"><input id="rush-delivery" className="form-check-input" type="checkbox" name="rushDeliverySupport" checked={formData.rushDeliverySupport || false} onChange={handleChange} /><label className="form-check-label" htmlFor="rush-delivery">Hỗ trợ giao hàng hỏa tốc</label></div>
+                <h4>General Information</h4>
+                <div className="mb-3"><label className="form-label">Title</label><input name="title" value={formData.title} onChange={handleChange} className="form-control" required /></div>
+                <div className="mb-3"><label className="form-label">Price (VND)</label><input type="number" name="price" value={formData.price} onChange={handleChange} className="form-control" required /></div>
+                <div className="mb-3"><label className="form-label">Stock Quantity</label><input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="form-control" required /></div>
+                <div className="mb-3"><label className="form-label">Weight (kg)</label><input type="number" name="weight" value={formData.weight} onChange={handleChange} className="form-control" required /></div>
+                <div className="mb-3"><label className="form-label">Description</label><textarea name="description" value={formData.description || ''} onChange={handleChange} className="form-control" rows={4} /></div>
+                <div className="form-check mb-3"><input id="rush-delivery" className="form-check-input" type="checkbox" name="rushDeliverySupport" checked={formData.rushDeliverySupport || false} onChange={handleChange} /><label className="form-check-label" htmlFor="rush-delivery">Support Rush Delivery</label></div>
 
                 <hr/>
-                <h4>Thông tin chi tiết</h4>
+                <h4>Detailed Information</h4>
                 {renderSpecificFields()}
                 <hr/>
 
                 <button type="submit" className="btn btn-primary w-100" disabled={isLoading}>
-                    {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                    {isLoading ? 'Đang lưu...' : 'Save Changes'}
                 </button>
             </form>
         </div>

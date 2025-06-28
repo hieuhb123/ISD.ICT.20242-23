@@ -76,8 +76,8 @@ const Header: React.FC = () => {
                             </li>
 
                             {/* --- NÚT DÀNH RIÊNG CHO QUẢN LÝ --- */}
-                            {/* Chỉ hiển thị nếu người dùng có vai trò là 'Product Manager' HOẶC 'Admin' */}
-                            {currentUser && (currentUser.role === 'Product Manager' || currentUser.role === 'Admin') && (
+                            {/* Chỉ hiển thị nếu người dùng có vai trò là 'Product Manager' */}
+                            {currentUser && (currentUser.role === 'Product Manager') && (
                                 <li>
                                     <NavLink
                                         to="/api/ProductManager/list-product"
@@ -109,9 +109,9 @@ const Header: React.FC = () => {
                             // Giao diện khi người dùng ĐÃ đăng nhập
                             <div className="d-flex align-items-center">
                                 <span className="text-dark me-3">
-                                    Chào, <strong>{currentUser.name}</strong>
+                                    Hi, <strong>{currentUser.name}</strong>
                                 </span>
-                                <button onClick={handleLogout} className="btn btn-danger">Đăng xuất</button>
+                                <button onClick={handleLogout} className="btn btn-danger">Log out</button>
                             </div>
                         ) : (
                             // Giao diện khi người dùng CHƯA đăng nhập
