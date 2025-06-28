@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 import java.util.List;
 
 
@@ -19,5 +20,6 @@ public class ProductManager {
     private String username;
     private String password;
     private List<String> ownProductIds;
+    private Instant createdAt;
     private Boolean blockStatus;
 }

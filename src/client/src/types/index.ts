@@ -69,5 +69,14 @@ type Order = {
     createdAt?: string;
 };
 
-export type { MediaItem, CartItem , OrderItem, Order, User };
+type ProductManager = {
+    id: string;
+    username: string;
+    password?: string;
+    ownProductIds?: string[];
+    blockStatus?: boolean;
+    createdAt?: string;
+};
+
+export type { MediaItem, CartItem , OrderItem, Order, User, ProductManager };
 

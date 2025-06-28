@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.media_shop.utils.Constants;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +48,11 @@ public class UserServiceImpl implements UserService {
                     throw new UserExistedException("User existed in the system");
                 });
 
-        ProductManager user = new ProductManager();
-        user.setUsername(username);
-        user.setPassword(password); // Note: In a real app, you should hash the password
-        user.setBlockStatus(false);
+            ProductManager user = new ProductManager();
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setBlockStatus(false);
+            user.setCreatedAt(Instant.now());
         return userRepository.save(user);
     }
 

@@ -18,6 +18,7 @@ import AddProduct from './pages/AddProduct';
 import ListProduct from './pages/ListProduct';
 import UpdateProduct from './pages/UpdateProduct';
 import SignUp from './pages/Sign-up';
+import Admin from './pages/Admin';
 
 //... các import khác
 
@@ -42,7 +43,7 @@ const App: React.FC = () => (
         <Route path="/api/ProductManager/add-product" element={<AddProduct />} />
         <Route path="/api/ProductManager/update-product/:id" element={<UpdateProduct />} />
         {/* ======================== */}
-
+        <Route path="/admin" element={<Admin/>} />
       </Routes>
     </Router>
   </AuthProvider>
