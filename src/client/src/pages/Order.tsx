@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { CartItem } from '../types';
 import { getOrCreateUserId } from '../utils/userId';
 import { getOrCreateCartId } from '../utils/cartId';
-import { it } from 'node:test';
 
 const OrderPage: React.FC = () => {
     const location = useLocation();
@@ -14,14 +13,14 @@ const OrderPage: React.FC = () => {
     const [phone, setPhone] = useState('');
     const [isRushOrder, setIsRushOrder] = useState(false);
 
-    // Thêm state để quản lý validation
+    // Add state for form validation
     const [formErrors, setFormErrors] = useState({
         receiverName: '',
         phone: '',
         shippingAddress: ''
     });
 
-    // Hàm validate form
+    // Form validation function
     const validateForm = () => {
         const errors = {
             receiverName: '',
@@ -31,17 +30,17 @@ const OrderPage: React.FC = () => {
         let isValid = true;
 
         if (!receiverName.trim()) {
-            errors.receiverName = 'Vui lòng nhập tên người nhận';
+            errors.receiverName = 'Please enter receiver name';
             isValid = false;
         }
 
         if (!phone.trim()) {
-            errors.phone = 'Vui lòng nhập số điện thoại';
+            errors.phone = 'Please enter phone number';
             isValid = false;
         }
 
         if (!shippingAddress.trim()) {
-            errors.shippingAddress = 'Vui lòng nhập địa chỉ giao hàng';
+            errors.shippingAddress = 'Please enter shipping address';
             isValid = false;
         }
 
@@ -60,13 +59,13 @@ const OrderPage: React.FC = () => {
         const cartId = await getOrCreateCartId();
         const order = {
             userId: userId,
-            shippingInfo: receiverName + '|' + phone ,
+            shippingInfo: receiverName + '|' + phone,
             items: items.map((item: CartItem) => ({
                 productId: item.product.id,
                 quantity: item.quantity,
             })),
             province: shippingAddress,
-            isRushOrder: isRushOrder, // Thêm trường này
+            isRushOrder: isRushOrder,
             createdAt: new Date().toISOString(),
         };
         console.log('Placing order:', order);
@@ -79,16 +78,16 @@ const OrderPage: React.FC = () => {
 
         if (res.ok) {
             const data = await res.json();
-            alert('Đặt hàng thành công! Mã đơn: ' + (data.id || ''));
+            alert('Order placed successfully! Order ID: ' + (data.id || ''));
         } else {
-            alert('Đặt hàng thất bại!');
+            alert('Order placement failed!');
         }
     };
 
-    // Kiểm tra tất cả sản phẩm phải hỗ trợ rush delivery
+    // Check if all products support rush delivery
     const hasRushDeliveryProducts = items.length > 0 && items.every((item: CartItem) => item.product.rushDeliverySupport);
 
-    // Nếu có sản phẩm không hỗ trợ rush delivery, tắt tùy chọn này
+    // Turn off rush order option if any product doesn't support it
     useEffect(() => {
         if (!hasRushDeliveryProducts && isRushOrder) {
             setIsRushOrder(false);
@@ -120,21 +119,20 @@ const OrderPage: React.FC = () => {
                                     </td>
                                     <td>{item.product.title}</td>
                                     <td>{item.quantity}</td>
-                                    <td>${item.product.price}</td>
-                                    <td>${Number(item.product.price) * item.quantity}</td>
+                                    <td>{Number(item.product.price).toLocaleString('vi-VN')}₫</td>
+                                    <td>{(Number(item.product.price) * item.quantity).toLocaleString('vi-VN')}₫</td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                     <h4>
-                        Total: $
-                        {items.reduce((sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity, 0)}
+                        Total: {items.reduce((sum: number, item: CartItem) => sum + Number(item.product.price) * item.quantity, 0).toLocaleString('vi-VN')}₫
                     </h4>
                     <hr />
-                    <h3>Thông tin giao hàng</h3>
+                    <h3>Shipping Information</h3>
                     <form onSubmit={handleSubmit} style={{ maxWidth: 400 }}>
                         <div className="mb-3">
-                            <label className="form-label">Tên người nhận *</label>
+                            <label className="form-label">Receiver Name *</label>
                             <input
                                 type="text"
                                 className={`form-control ${formErrors.receiverName ? 'is-invalid' : ''}`}
@@ -150,7 +148,7 @@ const OrderPage: React.FC = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="form-label">Số điện thoại *</label>
+                            <label className="form-label">Phone Number *</label>
                             <input
                                 type="text"
                                 className={`form-control ${formErrors.phone ? 'is-invalid' : ''}`}
@@ -166,7 +164,7 @@ const OrderPage: React.FC = () => {
                         </div>
 
                         <div className="mb-3">
-                            <label className="form-label">Địa chỉ giao hàng *</label>
+                            <label className="form-label">Shipping Address *</label>
                             <input
                                 type="text"
                                 className={`form-control ${formErrors.shippingAddress ? 'is-invalid' : ''}`}
@@ -181,7 +179,7 @@ const OrderPage: React.FC = () => {
                             )}
                         </div>
 
-                        {/* Thêm checkbox Rush Order nếu có sản phẩm hỗ trợ */}
+                        {/* Add Rush Order checkbox if products support it */}
                         {hasRushDeliveryProducts && (
                             <div className="mb-3 form-check">
                                 <input
@@ -192,16 +190,16 @@ const OrderPage: React.FC = () => {
                                     onChange={e => setIsRushOrder(e.target.checked)}
                                 />
                                 <label className="form-check-label" htmlFor="rushOrder">
-                                    Giao hàng nhanh (Rush Order)
+                                    Rush Delivery (Express Shipping)
                                 </label>
                                 <small className="form-text text-muted d-block">
-                                    Phí giao hàng nhanh sẽ được tính thêm
+                                    Additional express shipping fee will apply
                                 </small>
                             </div>
                         )}
 
                         <button type="submit" className="btn btn-primary">
-                            Đặt hàng
+                            Place Order
                         </button>
                     </form>
                 </>

@@ -27,8 +27,6 @@ public class PayRequest {
 
         String orderType = "other";
 
-        
-
         String vnp_IpAddr = VNPayConfig.getIpAddress();
 
         String vnp_TmnCode = VNPayConfig.vnp_TmnCode;

@@ -3,6 +3,7 @@ package com.media_shop.controller;
 
 import com.media_shop.repository.media_shopResponse;
 import com.media_shop.entity.user.*;
+import com.media_shop.exception.UserNotFoundException;
 import com.media_shop.service.UserService;
 import com.media_shop.utils.Constants;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<media_shopResponse<String>> loginAdmin(@RequestBody admin loginRequest) {
+    public ResponseEntity<media_shopResponse<String>> loginAdmin    (@RequestBody admin loginRequest) {
         if ("admin".equals(loginRequest.getUsername()) && "admin".equals(loginRequest.getPassword())) {
             media_shopResponse<String> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Login successfully", "admin");
             return ResponseEntity.ok(response);
@@ -54,12 +55,45 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-//    @PutMapping("/update/{id}")
-//    public ResponseEntity<media_shopResponse<User>> updateUser(@PathVariable String id, @RequestBody User newUser) {
-//        User user = userService.updateUser(id, newUser);
-//        media_shopResponse<User> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Update user successfully", user);
-//        return ResponseEntity.ok(response);
-//    }
+    @PutMapping("/block")
+    public ResponseEntity<media_shopResponse<ProductManager>> blockUser(@RequestParam String userId) {
+        try {
+            ProductManager user = userService.blockUser(userId);
+            media_shopResponse<ProductManager> response = new media_shopResponse<>(
+                    Constants.SUCCESS_CODE,
+                    "User blocked successfully",
+                    user
+            );
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            media_shopResponse<ProductManager> response = new media_shopResponse<>(
+                    Constants.ERROR_CODE,
+                    e.getMessage(),
+                    null
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PutMapping("/unblock")
+    public ResponseEntity<media_shopResponse<ProductManager>> unblockUser(@RequestParam String userId) {
+        try {
+            ProductManager user = userService.unblockUser(userId);
+            media_shopResponse<ProductManager> response = new media_shopResponse<>(
+                    Constants.SUCCESS_CODE,
+                    "User unblocked successfully",
+                    user
+            );
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            media_shopResponse<ProductManager> response = new media_shopResponse<>(
+                    Constants.ERROR_CODE,
+                    e.getMessage(),
+                    null
+            );
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
 
     @GetMapping("/all")
     public ResponseEntity<media_shopResponse<List<ProductManager>>> getAllUsers() {

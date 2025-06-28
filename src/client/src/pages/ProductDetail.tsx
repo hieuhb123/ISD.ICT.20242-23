@@ -34,12 +34,14 @@ const ProductDetail: React.FC = () => {
             alert('Failed to add to cart!');
         }
     };
+    
     function formatDate(dateStr?: string) {
         if (!dateStr) return '';
         const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return dateStr; // Nếu không parse được thì trả về nguyên bản
-        return date.toLocaleDateString('vi-VN'); // hoặc 'en-GB', hoặc custom format
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleDateString('en-US');
     }
+    
     if (!item) return <div>Loading...</div>;
 
     return (
@@ -54,37 +56,31 @@ const ProductDetail: React.FC = () => {
                 {/* Left: Product Images */}
                 <div className="col-md-5">
                     <img src={item.imageURL} className="img-fluid border mb-2" alt={item.title} style={{ maxHeight: 400, objectFit: 'contain' }} />
-                    {/* Nếu có nhiều ảnh, render thêm thumbnail ở đây */}
-                    {/* <div className="d-flex gap-2">
-                        <img src={item.imageURL} width={60} className="border" alt="" />
-                        ... 
-                    </div> */}
                 </div>
                 {/* Right: Product Info */}
                 <div className="col-md-7">
                     <h3>{item.title}</h3>
                     <div className="mb-2">
                         <span className="fs-4 text-danger fw-bold">{item.price.toLocaleString('vi-VN')}₫</span>
-                        {/* <span className="text-muted ms-2"><del>Giá gốc</del></span> */}
                     </div>
                     <div className="mb-2">
                         <span className="badge bg-secondary">{item.productType}</span>
                     </div>
                     <div className="mb-3">
-                        <label className="me-2">Số lượng:</label>
+                        <label className="me-2">Quantity:</label>
                         <input
                             type="number"
                             min={1}
+                            max={item.quantity}
                             value={amount}
                             onChange={e => setAmount(Number(e.target.value))}
                             style={{ width: 70, display: 'inline-block' }}
                             className="form-control d-inline-block me-2"
                         />
-                        <button className="btn btn-danger" onClick={handleAddToCart}>Thêm Vào Giỏ Hàng</button>
+                        <button className="btn btn-danger" onClick={handleAddToCart}>Add to Cart</button>
                     </div>
-                    {/* Thông tin thêm nếu muốn */}
                     <div className="mb-2">
-                        <span>Số lượng còn lại: {item.quantity}</span>
+                        <span>Stock Available: {item.quantity}</span>
                     </div>
                 </div>
             </div>
@@ -92,28 +88,28 @@ const ProductDetail: React.FC = () => {
             <div className="row mt-4">
                 <div className="col-md-8">
                     <div className="bg-white p-3 rounded shadow-sm mb-3">
-                        <h5 className="mb-3">CHI TIẾT SẢN PHẨM</h5>
+                        <h5 className="mb-3">PRODUCT DETAILS</h5>
                         <table className="table table-borderless">
                             <tbody>
                                 <tr>
-                                    <td className="text-muted" style={{ width: 200 }}>Danh mục</td>
+                                    <td className="text-muted" style={{ width: 200 }}>Category</td>
                                     <td>{item.productType}</td>
                                 </tr>
                                 <tr>
-                                    <td className="text-muted">Số lượng còn lại</td>
+                                    <td className="text-muted">Stock Available</td>
                                     <td>{item.quantity}</td>
                                 </tr>
                                 <tr>
-                                    <td className="text-muted">Khối lượng</td>
+                                    <td className="text-muted">Weight</td>
                                     <td>{item.weight}</td>
                                 </tr>
                                 <tr>
-                                    <td className="text-muted">Hỗ trợ giao hàng nhanh</td>
-                                    <td>{item.rushDeliverySupport ? 'Có' : 'Không'}</td>
+                                    <td className="text-muted">Rush Delivery Support</td>
+                                    <td>{item.rushDeliverySupport ? 'Yes' : 'No'}</td>
                                 </tr>
                                 {item.dimension && (
                                     <tr>
-                                        <td className="text-muted">Kích thước (dài x rộng x cao)</td>
+                                        <td className="text-muted">Dimensions (L x W x H)</td>
                                         <td>{item.dimension}</td>
                                     </tr>
                                 )}
@@ -121,25 +117,25 @@ const ProductDetail: React.FC = () => {
                                 {/* CD fields */}
                                 {item.artist && (
                                     <tr>
-                                        <td className="text-muted">Nghệ sĩ</td>
+                                        <td className="text-muted">Artist</td>
                                         <td>{item.artist}</td>
                                     </tr>
                                 )}
                                 {item.recordLabel && (
                                     <tr>
-                                        <td className="text-muted">Hãng phát hành</td>
+                                        <td className="text-muted">Record Label</td>
                                         <td>{item.recordLabel}</td>
                                     </tr>
                                 )}
                                 {item.musicType && (
                                     <tr>
-                                        <td className="text-muted">Thể loại nhạc</td>
+                                        <td className="text-muted">Music Genre</td>
                                         <td>{item.musicType}</td>
                                     </tr>
                                 )}
                                 {item.releasedDate && (
                                     <tr>
-                                        <td className="text-muted">Ngày phát hành</td>
+                                        <td className="text-muted">Release Date</td>
                                         <td>{formatDate(item.releasedDate)}</td>
                                     </tr>
                                 )}
@@ -147,43 +143,43 @@ const ProductDetail: React.FC = () => {
                                 {/* Book fields */}
                                 {item.author && (
                                     <tr>
-                                        <td className="text-muted">Tác giả</td>
+                                        <td className="text-muted">Author</td>
                                         <td>{item.author}</td>
                                     </tr>
                                 )}
                                 {item.coverType && (
                                     <tr>
-                                        <td className="text-muted">Loại bìa</td>
+                                        <td className="text-muted">Cover Type</td>
                                         <td>{item.coverType}</td>
                                     </tr>
                                 )}
                                 {item.publisher && (
                                     <tr>
-                                        <td className="text-muted">Nhà xuất bản</td>
+                                        <td className="text-muted">Publisher</td>
                                         <td>{item.publisher}</td>
                                     </tr>
                                 )}
                                 {item.publishDate && (
                                     <tr>
-                                        <td className="text-muted">Ngày xuất bản</td>
+                                        <td className="text-muted">Publish Date</td>
                                         <td>{formatDate(item.publishDate)}</td>
                                     </tr>
                                 )}
                                 {item.numOfPages && (
                                     <tr>
-                                        <td className="text-muted">Số trang</td>
+                                        <td className="text-muted">Number of Pages</td>
                                         <td>{item.numOfPages}</td>
                                     </tr>
                                 )}
                                 {item.language && (
                                     <tr>
-                                        <td className="text-muted">Ngôn ngữ</td>
+                                        <td className="text-muted">Language</td>
                                         <td>{item.language}</td>
                                     </tr>
                                 )}
                                 {item.bookCategory && item.bookCategory.length > 0 && (
                                     <tr>
-                                        <td className="text-muted">Thể loại sách</td>
+                                        <td className="text-muted">Book Categories</td>
                                         <td>{item.bookCategory.join(', ')}</td>
                                     </tr>
                                 )}
@@ -191,31 +187,31 @@ const ProductDetail: React.FC = () => {
                                 {/* DVD fields */}
                                 {item.discType && (
                                     <tr>
-                                        <td className="text-muted">Loại đĩa</td>
+                                        <td className="text-muted">Disc Type</td>
                                         <td>{item.discType}</td>
                                     </tr>
                                 )}
                                 {item.director && (
                                     <tr>
-                                        <td className="text-muted">Đạo diễn</td>
+                                        <td className="text-muted">Director</td>
                                         <td>{item.director}</td>
                                     </tr>
                                 )}
                                 {item.duration && (
                                     <tr>
-                                        <td className="text-muted">Thời lượng</td>
+                                        <td className="text-muted">Duration</td>
                                         <td>{item.duration}</td>
                                     </tr>
                                 )}
                                 {item.subtitles && (
                                     <tr>
-                                        <td className="text-muted">Phụ đề</td>
+                                        <td className="text-muted">Subtitles</td>
                                         <td>{item.subtitles}</td>
                                     </tr>
                                 )}
                                 {item.filmType && (
                                     <tr>
-                                        <td className="text-muted">Thể loại phim</td>
+                                        <td className="text-muted">Film Genre</td>
                                         <td>{item.filmType}</td>
                                     </tr>
                                 )}
@@ -223,13 +219,13 @@ const ProductDetail: React.FC = () => {
                         </table>
                     </div>
                     <div className="bg-white p-3 rounded shadow-sm">
-                        <h5 className="mb-3">MÔ TẢ SẢN PHẨM</h5>
+                        <h5 className="mb-3">PRODUCT DESCRIPTION</h5>
                         <div style={{ whiteSpace: 'pre-line' }}>
-                            {item.description || 'Không có mô tả.'}
+                            {item.description || 'No description available.'}
                         </div>
                     </div>
                 </div>
-                {/* Sidebar: Có thể thêm voucher, sản phẩm nổi bật, ... */}
+                {/* Sidebar: Could add vouchers, featured products, etc. */}
                 <div className="col-md-4">
                     {/* ... */}
                 </div>

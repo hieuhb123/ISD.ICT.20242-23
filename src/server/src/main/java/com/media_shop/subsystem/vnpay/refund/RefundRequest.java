@@ -3,8 +3,11 @@ package com.media_shop.subsystem.vnpay.refund;
 
 
 import com.google.gson.JsonObject;
+import com.media_shop.entity.order.Order;
 import com.media_shop.entity.payment.PaymentTransaction;
+import com.media_shop.repository.order.OrderRepository;
 import com.media_shop.subsystem.vnpay.config.VNPayConfig;
+import com.media_shop.utils.Constants;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -18,9 +21,11 @@ import java.util.TimeZone;
 
 public class RefundRequest {
     private final PaymentTransaction paymentTransaction;
+    private final OrderRepository orderRepository;
 
-    public RefundRequest(PaymentTransaction paymentTransaction) {
+    public RefundRequest(PaymentTransaction paymentTransaction, OrderRepository orderRepository) {
         this.paymentTransaction = paymentTransaction;
+        this.orderRepository = orderRepository; 
     }
 
     public String refund() throws IOException {
@@ -88,7 +93,16 @@ public class RefundRequest {
             response.append(output);
         }
         in.close();
-        System.out.println(response);
+
+        JsonObject jsonResponse = com.google.gson.JsonParser.parseString(response.toString()).getAsJsonObject();
+        String res_vnp_TxnRef = jsonResponse.get("vnp_TxnRef").getAsString();
+        String vnp_ResponseCode = jsonResponse.get("vnp_ResponseCode").getAsString();
+        Order order = orderRepository.findById(res_vnp_TxnRef)
+            .orElseThrow(() -> new RuntimeException("Order not found: " + res_vnp_TxnRef));
+        if ("00".equals(vnp_ResponseCode)) {
+            order.setStatus(Constants.ORDER_STATUS_CANCELLED);
+            orderRepository.save(order);
+        }
         return response.toString();
     }
 

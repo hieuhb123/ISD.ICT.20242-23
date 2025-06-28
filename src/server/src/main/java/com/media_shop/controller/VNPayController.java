@@ -45,7 +45,7 @@ public class VNPayController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/refund")
+    @PostMapping("/refund")
     public ResponseEntity<media_shopResponse<RefundTransaction>> refund(@RequestBody PaymentTransaction paymentTransaction) throws IOException {
             RefundTransaction refundTransaction = vnpayService.refund(paymentTransaction);
             refundTransactionRepository.save(refundTransaction);
@@ -53,7 +53,12 @@ public class VNPayController {
             return ResponseEntity.ok(response);
     }
     
-
+    @GetMapping("/transaction/{orderId}")
+    public ResponseEntity<media_shopResponse<PaymentTransaction>> getTransactionByOrderId(@PathVariable String orderId) {
+        PaymentTransaction paymentTransaction = vnpayService.getTransactionByOrderId(orderId);
+        media_shopResponse<PaymentTransaction> response = new media_shopResponse<>(Constants.SUCCESS_CODE, "Get transaction successfully", paymentTransaction);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/pay_return")
     public ResponseEntity<media_shopResponse<PaymentTransaction>> payReturn(@RequestBody Map<String, String> request) {

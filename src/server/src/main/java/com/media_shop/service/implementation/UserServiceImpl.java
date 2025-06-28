@@ -58,10 +58,11 @@ public class UserServiceImpl implements UserService {
                     throw new UserExistedException("User existed in the system");
                 });
 
-        ProductManager user = new ProductManager();
-        user.setUsername(username);
-        user.setPassword(password); // Note: In a real app, you should hash the password
-        user.setBlockStatus(false);
+            ProductManager user = new ProductManager();
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setBlockStatus(false);
+            user.setCreatedAt(Instant.now());
         return userRepository.save(user);
     }
 
@@ -328,5 +329,21 @@ public class UserServiceImpl implements UserService {
     public Product getProductById(String id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+    }
+
+    @Override
+    public ProductManager blockUser(String userId) {
+        ProductManager user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setBlockStatus(true);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public ProductManager unblockUser(String userId) {
+        ProductManager user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setBlockStatus(false);
+        return userRepository.save(user);
     }
 }

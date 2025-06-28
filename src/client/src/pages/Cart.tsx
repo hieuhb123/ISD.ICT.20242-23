@@ -28,8 +28,8 @@ const CartPage: React.FC = () => {
         const currentItem = cartItems.find(item => item.product.id === productId);
         if (!currentItem) return;
 
-        // Kiểm tra không vượt quá số lượng tồn kho
-        if (newQuantity > currentItem.product.quantity) {
+        // Chỉ kiểm tra stock khi TĂNG số lượng (newQuantity > currentItem.quantity)
+        if (newQuantity > currentItem.quantity && newQuantity > currentItem.product.quantity) {
             alert(`Chỉ còn ${currentItem.product.quantity} sản phẩm trong kho!`);
             return;
         }
