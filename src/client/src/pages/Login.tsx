@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { User } from '../types';
 import { useAuth } from '../contexts/AuthContext'; 
 
+import hust from '../assets/hust.png';
 const Login: React.FC = () => {
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -83,38 +84,8 @@ const Login: React.FC = () => {
     return (
         <main className="form-signin w-100 m-auto" style={{ maxWidth: 330, padding: '1rem' }}>
             <form onSubmit={handleSubmit}>
-                <img className="mb-4" src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57" />
+                <img className="mb-4" src={hust} alt="ảnh bách khoa" width="72" height="108" />
                 <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
-                
-                {/* Role Selection - Move to top for better UX */}
-                <div className="list-group mb-3">
-                    <label className="list-group-item d-flex gap-2">
-                        <input
-                            className="form-check-input flex-shrink-0"
-                            type="radio"
-                            name="listGroupRadios"
-                            id="product_manager"
-                            value="pm"
-                            checked={role === 'pm'}
-                            onChange={() => setRole('pm')}
-                            disabled={isLoading}
-                        />
-                        <span>Product Manager</span>
-                    </label>
-                    <label className="list-group-item d-flex gap-2">
-                        <input
-                            className="form-check-input flex-shrink-0"
-                            type="radio"
-                            name="listGroupRadios"
-                            id="admin"
-                            value="admin"
-                            checked={role === 'admin'}
-                            onChange={() => setRole('admin')}
-                            disabled={isLoading}
-                        />
-                        <span>Admin</span>
-                    </label>
-                </div>
 
                 <div className="form-floating mb-2">
                     <input
@@ -143,11 +114,38 @@ const Login: React.FC = () => {
                     />
                     <label htmlFor="floatingPassword">Password</label>
                 </div>
-                
+                                <div className="list-group mb-3">
+                    <label className="list-group-item d-flex gap-2">
+                        <input
+                            className="form-check-input flex-shrink-0"
+                            type="radio"
+                            name="listGroupRadios"
+                            id="product_manager"
+                            value="pm"
+                            checked={role === 'pm'}
+                            onChange={() => setRole('pm')}
+                            disabled={isLoading}
+                        />
+                        <span>Product Manager</span>
+                    </label>
+                    <label className="list-group-item d-flex gap-2">
+                        <input
+                            className="form-check-input flex-shrink-0"
+                            type="radio"
+                            name="listGroupRadios"
+                            id="admin"
+                            value="admin"
+                            checked={role === 'admin'}
+                            onChange={() => setRole('admin')}
+                            disabled={isLoading}
+                        />
+                        <span>Admin</span>
+                    </label>
+                </div>
+
                 <button className="btn btn-primary w-100 py-2" type="submit" disabled={isLoading}>
                     {isLoading ? 'Signing in...' : `Sign in as ${role === 'admin' ? 'Admin' : 'Product Manager'}`}
                 </button>
-
                 <div className="text-center mt-3">
                     <Link to="/signup" className="text-decoration-none">
                         Don't have an account? Sign up
