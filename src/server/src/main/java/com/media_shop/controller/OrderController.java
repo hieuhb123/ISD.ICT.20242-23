@@ -41,4 +41,13 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/cancel/{orderId}")
+    public ResponseEntity<media_shopResponse<CancelOrderResult>> cancelPaidOrder(@PathVariable String orderId){
+        try{
+            CancelOrderResult result = cancelOrderService.cancelPaidOrder(orderId);
+            return ResponseEntity.ok(new media_shopResponse<>(Constants.SUCCESS_CODE, "Order cancelled", result));
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(new media_shopResponse<>(Constants.ERROR_CODE, e.getMessage(), null));
+        }
+    }
 }
