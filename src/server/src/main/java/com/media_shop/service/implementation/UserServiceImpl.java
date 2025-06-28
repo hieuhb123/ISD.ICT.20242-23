@@ -5,22 +5,24 @@ import com.cloudinary.utils.ObjectUtils;
 import com.media_shop.entity.product.*;
 import com.media_shop.repository.product.*;
 import com.media_shop.entity.user.ProductManager;
-import com.media_shop.exception.IncorrectPasswordException;
-import com.media_shop.exception.ProductNotFoundException;
-import com.media_shop.exception.ProductSizeException;
-import com.media_shop.exception.UserExistedException;
-import com.media_shop.exception.UserNotFoundException;
+import com.media_shop.exception.*; // Import all exceptions from the package
 import com.media_shop.repository.user.ProductManagerRepository;
 import com.media_shop.service.UserService;
+import com.media_shop.repository.user.DeletionLogRepository;
+import com.media_shop.entity.user.DeletionLog;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.media_shop.utils.Constants;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -29,15 +31,24 @@ public class UserServiceImpl implements UserService {
     private final DVDRepository dvdRepository;
     private final BookRepository bookRepository;
     private final ProductRepository productRepository;
+    private final DeletionLogRepository deletionLogRepository;
 
+    // --- Define constants for your business rules ---
+    private static final int DAILY_DELETE_LIMIT = 30;
+    private static final int MAX_PRODUCTS_PER_REQUEST = 10;
+
+    // --- Single, corrected constructor that initializes ALL repositories ---
     public UserServiceImpl(ProductManagerRepository userRepository, CDRepository cdRepository,
-                           DVDRepository dvdRepository, BookRepository bookRepository, ProductRepository productRepository) {
+                        DVDRepository dvdRepository, BookRepository bookRepository,
+                        ProductRepository productRepository, DeletionLogRepository deletionLogRepository) {
         this.userRepository = userRepository;
         this.cdRepository = cdRepository;
         this.dvdRepository = dvdRepository;
         this.bookRepository = bookRepository;
         this.productRepository = productRepository;
+        this.deletionLogRepository = deletionLogRepository;
     }
+
 
     @Override
     public ProductManager createUser(String username, String password) {
@@ -242,24 +253,49 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteListProduct(String userId, List<String> ids) {
-        if (ids.size() > 10) {
-            throw new ProductSizeException("Number of products to delete must be less than 10 at once.");
+    @Transactional
+    public void deleteListProduct(String userId, List<String> idsToDelete) {
+        // REQUIREMENT 1: Check the size of the incoming request first
+        if (idsToDelete.size() > MAX_PRODUCTS_PER_REQUEST) {
+            throw new ProductSizeException("You can only delete a maximum of " + MAX_PRODUCTS_PER_REQUEST + " products at a time.");
         }
-        
-        List<Product> productsToDelete = productRepository.findAllById(ids);
-        if(productsToDelete.size() != ids.size()){
+
+        // Find the user
+        ProductManager manager = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Product Manager not found"));
+
+        // REQUIREMENT 2: Check the daily delete limit
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+        long alreadyDeletedCount = deletionLogRepository.countByManagerIdAndDeletedAtAfter(manager.getId(), startOfToday);
+
+        if (alreadyDeletedCount + idsToDelete.size() > DAILY_DELETE_LIMIT) {
+            long remainingDeletes = DAILY_DELETE_LIMIT - alreadyDeletedCount;
+            throw new DailyDeleteLimitExceededException(
+                "Daily delete limit exceeded. You have already deleted " + alreadyDeletedCount +
+                " products today. You can only delete " + (remainingDeletes > 0 ? remainingDeletes : 0) + " more."
+            );
+        }
+
+        // If all checks pass, proceed with the deletion
+        List<Product> productsToDelete = productRepository.findAllById(idsToDelete);
+        if (productsToDelete.size() != idsToDelete.size()) {
             throw new ProductNotFoundException("One or more products not found");
         }
         
-        // Soft delete: đặt deleted = true cho tất cả sản phẩm thay vì xóa hoàn toàn
+        // Soft delete the products
         productsToDelete.forEach(product -> product.setDeleted(true));
         productRepository.saveAll(productsToDelete);
 
-        ProductManager user = userRepository.findById(userId).orElse(null);
-        if (user != null && user.getOwnProductIds() != null) {
-            user.getOwnProductIds().removeAll(ids);
-            userRepository.save(user);
+        // Log the successful deletions
+        List<DeletionLog> logs = idsToDelete.stream()
+                                            .map(productId -> new DeletionLog(manager.getId()))
+                                            .collect(Collectors.toList());
+        deletionLogRepository.saveAll(logs);
+
+        // Update the manager's own product list
+        if (manager.getOwnProductIds() != null) {
+            manager.getOwnProductIds().removeAll(idsToDelete);
+            userRepository.save(manager);
         }
     }
 

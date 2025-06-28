@@ -1,14 +1,14 @@
 // src/components/UpdateProduct.tsx
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link, useParams } from 'react-router-dom';
 import { MediaItem } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 // =================================================================
-// SECTION 1: API LOGIC (Giữ nguyên)
+// SECTION 1: API LOGIC 
 // =================================================================
-const API_BASE_URL = 'http://localhost:8080/api/product';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 type MediaShopResponse<T> = {
     code: number;
@@ -19,26 +19,27 @@ type MediaShopResponse<T> = {
 async function handleApiResponse<T>(response: Response): Promise<T> {
     const json: MediaShopResponse<T> = await response.json();
     if (!response.ok || json.code !== 1) {
-        throw new Error(json.message || 'Đã có lỗi xảy ra từ server');
+        throw new Error(json.message || 'An error occurred on the server');
     }
+    // Handle cases where the API returns a success message without a full data object
     if (!json.data) {
-        throw new Error('API không trả về dữ liệu.');
+        return json.message as T; 
     }
     return json.data;
 }
 
 const getProductById = (id: string) => {
-    return fetch(`${API_BASE_URL}/${id}`).then(handleApiResponse<MediaItem>);
+    return fetch(`${API_BASE_URL}/product/${id}`).then(handleApiResponse<MediaItem>);
 };
 
-const updateProductDetails = (id: string, productData: MediaItem) => {
-    const type = productData.productType.toLowerCase();
-    const endpoint = `http://localhost:8080/api/ProductManager/update-${type}/${id}`;
-    // Gửi toàn bộ dữ liệu cập nhật
-    const body = { ...productData };
-    // Không cần gửi id và productType trong body nếu API không yêu cầu
-    delete (body as Partial<MediaItem>).id; 
+// Updates all product details EXCEPT for the price
+const updateProductCoreDetails = (id: string, productData: Partial<MediaItem>) => {
+    const type = productData.productType!.toLowerCase();
+    const endpoint = `${API_BASE_URL}/ProductManager/update-${type}/${id}`;
     
+    const body = { ...productData };
+    delete (body as Partial<MediaItem>).price; // Don't send price in this request
+
     return fetch(endpoint, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -46,6 +47,15 @@ const updateProductDetails = (id: string, productData: MediaItem) => {
     }).then(handleApiResponse<MediaItem>);
 };
 
+// Updates ONLY the product's price
+const updateProductPrice = (id: string, newPrice: number) => {
+    const endpoint = `${API_BASE_URL}/ProductManager/update-price/${id}?newPrice=${newPrice}`;
+
+    return fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+    }).then(handleApiResponse<MediaItem>);
+};
 // =================================================================
 // SECTION 2: REACT COMPONENT
 // =================================================================
@@ -56,7 +66,7 @@ const UpdateProduct: React.FC = () => {
     const { currentUser } = useAuth();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-
+    const location = useLocation(); // <-- 1. Get the location object
     const [formData, setFormData] = useState<MediaItem | null>(null);
     const [originalData, setOriginalData] = useState<MediaItem | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +78,12 @@ const UpdateProduct: React.FC = () => {
             setError("ID sản phẩm không được tìm thấy trong URL.");
             setIsLoading(false);
             return;
+        }
+        //Check for an error passed in the navigation state when the component loads
+        if (location.state?.error) {
+            setError(location.state.error);
+            // Clear the state to prevent the error from showing again on refresh
+            window.history.replaceState({}, document.title)
         }
 
         if (currentUser) {
@@ -81,7 +97,7 @@ const UpdateProduct: React.FC = () => {
         } else {
             setIsLoading(false);
         }
-    }, [id, currentUser]);
+    }, [id, currentUser, location.state]);
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -104,7 +120,7 @@ const UpdateProduct: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!id || !formData) return;
+        if (!id || !formData || !originalData) return;
 
         if (!currentUser || currentUser.role !== 'Product Manager') {
             setError("You do not have permission to perform this action.");
@@ -116,23 +132,47 @@ const UpdateProduct: React.FC = () => {
         setSuccess(null);
 
         try {
-            // Đảm bảo các trường số được chuyển đổi đúng cách trước khi gửi
-            const dataToSend: MediaItem = {
-                ...formData,
-                price: Number(formData.price) || 0,
-                quantity: Number(formData.quantity) || 1,
-                weight: String(formData.weight) || "0",
-                numOfPages: formData.numOfPages ? Number(formData.numOfPages) : undefined,
-            };
+            const updatePromises: Promise<any>[] = [];
 
-            await updateProductDetails(id, dataToSend);
+            // 1. Check if the price has changed
+            const priceHasChanged = Number(formData.price) !== Number(originalData.price);
+            if (priceHasChanged) {
+                console.log("Price changed. Adding price update to promises.");
+                updatePromises.push(updateProductPrice(id, Number(formData.price)));
+            }
+            
+            // 2. Prepare data for other details and check if they have changed.
+            // A simple way to check is to stringify the objects without the price.
+            const detailsToUpdate = { ...formData };
+            delete (detailsToUpdate as Partial<MediaItem>).price;
+            
+            const originalDetails = { ...originalData };
+            delete (originalDetails as Partial<MediaItem>).price;
+
+            const detailsHaveChanged = JSON.stringify(detailsToUpdate) !== JSON.stringify(originalDetails);
+
+            if (detailsHaveChanged) {
+                console.log("Other details changed. Adding core details update to promises.");
+                updatePromises.push(updateProductCoreDetails(id, detailsToUpdate));
+            }
+
+            // 3. Execute the updates
+            if (updatePromises.length === 0) {
+                setSuccess("No changes were detected.");
+                setIsLoading(false);
+                return;
+            }
+
+            // Use Promise.all to run updates concurrently
+            await Promise.all(updatePromises);
             
             setSuccess("Product updated successfully! Redirecting...");
             setTimeout(() => navigate('/api/ProductManager/list-product'), 2000);
 
         } catch (err: any) {
-            setError(`Lỗi khi cập nhật: ${err.message}`);
-            // Khôi phục lại dữ liệu gốc nếu có lỗi
+            // Error message from the backend will be more specific (e.g. from the price validation)
+            setError(`Update failed: ${err.message}`);
+            // Restore original data on failure
             setFormData(originalData);
         } finally {
             setIsLoading(false);
