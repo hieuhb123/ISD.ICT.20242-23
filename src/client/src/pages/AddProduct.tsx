@@ -34,7 +34,7 @@ const initialFormState: Partial<MediaItem> = {
 const BOOK_CATEGORIES = ["Books", "Biographies & Memoirs", "Leaders & Notable People"];
 
 const AddProduct: React.FC = () => {
-    // ... (states and hooks unchanged)
+    // ... states and hooks 
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const [productType, setProductType] = useState<'cd' | 'book' | 'dvd'>('cd');
@@ -75,7 +75,6 @@ const AddProduct: React.FC = () => {
         });
     };
 
-    // ... (other handlers unchanged)
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
@@ -88,10 +87,8 @@ const AddProduct: React.FC = () => {
         setFormData(initialFormState);
     };
     
-    // handleSubmit does not need to change, as formData.bookCategory is already an array
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // ... submit logic unchanged
         setError('');
         setIsLoading(true);
 
@@ -148,7 +145,6 @@ const AddProduct: React.FC = () => {
     const renderSpecificFields = () => {
         switch (productType) {
             case 'cd':
-                // ... (unchanged)
                 return (
                     <>
                         <input name="artist" value={formData.artist || ''} onChange={handleChange} placeholder="Artist" className="form-control mb-2" />
@@ -168,7 +164,6 @@ const AddProduct: React.FC = () => {
                         <input type="number" name="numOfPages" value={formData.numOfPages || ''} onChange={handleChange} placeholder="Number of Pages" className="form-control mb-2" />
                         <input name="language" value={formData.language || ''} onChange={handleChange} placeholder="Language" className="form-control mb-2" />
 
-                        {/* Replace select with a group of checkboxes */}
                         <div className="mt-3">
                             <label className="form-label">Book Categories:</label>
                             {BOOK_CATEGORIES.map(category => (
@@ -192,7 +187,6 @@ const AddProduct: React.FC = () => {
                     </>
                 );
             case 'dvd':
-                 // ... (unchanged)
                 return (
                     <>
                         <input name="discType" value={formData.discType || ''} onChange={handleChange} placeholder="Disc Type" className="form-control mb-2" />
