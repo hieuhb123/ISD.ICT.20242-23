@@ -27,9 +27,6 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
     private final ProductManagerRepository userRepository;
-    private final CDRepository cdRepository;
-    private final DVDRepository dvdRepository;
-    private final BookRepository bookRepository;
     private final ProductRepository productRepository;
     private final DeletionLogRepository deletionLogRepository;
 
@@ -38,13 +35,9 @@ public class UserServiceImpl implements UserService {
     private static final int MAX_PRODUCTS_PER_REQUEST = 10;
 
     // --- Single, corrected constructor that initializes ALL repositories ---
-    public UserServiceImpl(ProductManagerRepository userRepository, CDRepository cdRepository,
-                        DVDRepository dvdRepository, BookRepository bookRepository,
+    public UserServiceImpl(ProductManagerRepository userRepository,
                         ProductRepository productRepository, DeletionLogRepository deletionLogRepository) {
         this.userRepository = userRepository;
-        this.cdRepository = cdRepository;
-        this.dvdRepository = dvdRepository;
-        this.bookRepository = bookRepository;
         this.productRepository = productRepository;
         this.deletionLogRepository = deletionLogRepository;
     }
@@ -113,7 +106,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Product addCD(String userId, CD product) {
         product.setProductType("cd");
-        CD savedCD = cdRepository.save(product);
+        CD savedCD = productRepository.save(product);
 
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {
@@ -129,7 +122,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Product addBook(String userId, Book product) {
         product.setProductType("book");
-        Book savedBook = bookRepository.save(product);
+        Book savedBook = productRepository.save(product);
 
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {
@@ -145,7 +138,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Product addDVD(String userId, DVD product) {
         product.setProductType("dvd");
-        DVD savedDVD = dvdRepository.save(product);
+        DVD savedDVD = productRepository.save(product);
 
         ProductManager user = userRepository.findById(userId).orElse(null);
         if (user != null) {
@@ -164,7 +157,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Product updateCD(String id, CD productDetails) {
-        CD existingCD = cdRepository.findById(id)
+        CD existingCD = (CD) productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("CD not found with id: " + id));
 
         // Các trường chung từ lớp Product
@@ -182,12 +175,12 @@ public class UserServiceImpl implements UserService {
         existingCD.setMusicType(productDetails.getMusicType());
         existingCD.setReleasedDate(productDetails.getReleasedDate());
 
-        return cdRepository.save(existingCD);
+        return productRepository.save(existingCD);
     }
 
     @Override
     public Product updateBook(String id, Book productDetails) {
-        Book existingBook = bookRepository.findById(id)
+        Book existingBook = (Book) productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Book not found with id: " + id));
         
         // Các trường chung từ lớp Product
@@ -208,12 +201,12 @@ public class UserServiceImpl implements UserService {
         existingBook.setNumOfPages(productDetails.getNumOfPages());   // <-- SỬA LẠI
         existingBook.setBookCategory(productDetails.getBookCategory()); // <-- THÊM LẠI
         
-        return bookRepository.save(existingBook);
+        return productRepository.save(existingBook);
     }
 
     @Override
     public Product updateDVD(String id, DVD productDetails) {
-        DVD existingDVD = dvdRepository.findById(id)
+        DVD existingDVD = (DVD) productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("DVD not found with id: " + id));
 
         // Các trường chung từ lớp Product
@@ -234,7 +227,7 @@ public class UserServiceImpl implements UserService {
         existingDVD.setDuration(productDetails.getDuration()); // <-- SỬA LẠI
         existingDVD.setFilmType(productDetails.getFilmType()); // <-- SỬA LẠI
 
-        return dvdRepository.save(existingDVD);
+        return productRepository.save(existingDVD);
     }
 
     @Override

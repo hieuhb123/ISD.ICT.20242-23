@@ -38,7 +38,6 @@ const updateProductCoreDetails = (id: string, productData: Partial<MediaItem>) =
     const endpoint = `${API_BASE_URL}/ProductManager/update-${type}/${id}`;
     
     const body = { ...productData };
-    delete (body as Partial<MediaItem>).price; // Don't send price in this request
 
     return fetch(endpoint, {
         method: 'PUT',
@@ -134,20 +133,18 @@ const UpdateProduct: React.FC = () => {
         try {
             const updatePromises: Promise<any>[] = [];
 
-            // 1. Check if the price has changed
-            const priceHasChanged = Number(formData.price) !== Number(originalData.price);
-            if (priceHasChanged) {
-                console.log("Price changed. Adding price update to promises.");
-                updatePromises.push(updateProductPrice(id, Number(formData.price)));
-            }
+            // // 1. Check if the price has changed
+            // const priceHasChanged = Number(formData.price) !== Number(originalData.price);
+            // if (priceHasChanged) {
+            //     console.log("Price changed. Adding price update to promises.");
+            //     updatePromises.push(updateProductPrice(id, Number(formData.price)));
+            // }
             
             // 2. Prepare data for other details and check if they have changed.
             // A simple way to check is to stringify the objects without the price.
             const detailsToUpdate = { ...formData };
-            delete (detailsToUpdate as Partial<MediaItem>).price;
             
             const originalDetails = { ...originalData };
-            delete (originalDetails as Partial<MediaItem>).price;
 
             const detailsHaveChanged = JSON.stringify(detailsToUpdate) !== JSON.stringify(originalDetails);
 
