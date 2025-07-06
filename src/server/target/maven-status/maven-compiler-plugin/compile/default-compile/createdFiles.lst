@@ -1,5 +1,4 @@
 com\media_shop\utils\Constants.class
-com\media_shop\repository\product\DVDRepository.class
 com\media_shop\exception\PaymentException.class
 com\media_shop\subsystem\vnpay\pay\PayRequest.class
 com\media_shop\exception\UserNotFoundException.class
@@ -32,7 +31,6 @@ com\media_shop\exception\pay\FailedTransactionException.class
 com\media_shop\config\WebConfig.class
 com\media_shop\exception\pay\RefundRequestedTransactionException.class
 com\media_shop\exception\UserBlockedException.class
-com\media_shop\repository\product\BookRepository.class
 com\media_shop\entity\order\OrderItem.class
 com\media_shop\exception\refund\ProcessingRefundException.class
 com\media_shop\entity\user\DeletionLog.class
@@ -61,7 +59,6 @@ com\media_shop\controller\HomeController.class
 com\media_shop\exception\refund\InvalidIdentifierCodeException.class
 com\media_shop\subsystem\vnpay\config\VNPayConfig.class
 com\media_shop\exception\pay\ProcessingTransactionException.class
-com\media_shop\repository\product\CDRepository.class
 com\media_shop\repository\transaction\PaymentTransactionRepository.class
 com\media_shop\service\UserService.class
 com\media_shop\entity\payment\RefundTransaction.class

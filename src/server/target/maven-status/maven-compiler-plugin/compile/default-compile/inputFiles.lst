@@ -26,6 +26,7 @@ D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\en
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\entity\user\ProductManager.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\DailyDeleteLimitExceededException.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\IncorrectPasswordException.java
+D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\InvalidRequestException.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\OrderCannotBeCancelledException.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\OrderNotFoundException.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\exception\pay\FailedTransactionException.java
@@ -50,9 +51,6 @@ D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\ex
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\cart\CartRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\media_shopResponse.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\order\OrderRepository.java
-D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\product\BookRepository.java
-D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\product\CDRepository.java
-D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\product\DVDRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\product\ProductRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\transaction\PaymentTransactionRepository.java
 D:\Hust\Itss\Project\ISD.ICT.20242-23\src\server\src\main\java\com\media_shop\repository\transaction\RefundTransactionRepository.java

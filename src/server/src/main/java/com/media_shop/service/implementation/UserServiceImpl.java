@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             // Ném ra lỗi để báo cho người dùng
             throw new InvalidRequestException(message);
         }
-        // CHÚ THÍCH: Kết thúc phần xử lý giá
+        // Kết thúc phần xử lý giá
 
         // Nếu giá hợp lệ, cập nhật tất cả các trường chung
         existingProduct.setTitle(productDetails.getTitle());
@@ -189,8 +189,9 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * [REFACTORED] Updated using the "Find, Update, Save" pattern.
-     * This prevents issues like 'productType' being null and is safer.
+     *  using the "Find, Update, Save" pattern.
+     * This prevents issues like 'productType' being null and is safe against concurrent updates.
+     * It also ensures that the common fields of Product are updated correctly.
      */
 
     @Override

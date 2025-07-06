@@ -47,14 +47,14 @@ const updateProductCoreDetails = (id: string, productData: Partial<MediaItem>) =
 };
 
 // Updates ONLY the product's price
-const updateProductPrice = (id: string, newPrice: number) => {
-    const endpoint = `${API_BASE_URL}/ProductManager/update-price/${id}?newPrice=${newPrice}`;
+// const updateProductPrice = (id: string, newPrice: number) => {
+//     const endpoint = `${API_BASE_URL}/ProductManager/update-price/${id}?newPrice=${newPrice}`;
 
-    return fetch(endpoint, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-    }).then(handleApiResponse<MediaItem>);
-};
+//     return fetch(endpoint, {
+//         method: 'PUT',
+//         headers: { 'Content-Type': 'application/json' },
+//     }).then(handleApiResponse<MediaItem>);
+// };
 // =================================================================
 // SECTION 2: REACT COMPONENT
 // =================================================================
