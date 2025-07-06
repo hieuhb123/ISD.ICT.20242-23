@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.media_shop.utils.Constants;
+import com.media_shop.exception.InvalidRequestException;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -29,6 +30,42 @@ public class UserServiceImpl implements UserService {
     private final ProductManagerRepository userRepository;
     private final ProductRepository productRepository;
     private final DeletionLogRepository deletionLogRepository;
+    /**
+     * [REFACTORED] This method updates common fields of a product.
+     * It is used in the updateCD, updateBook, and updateDVD methods.
+     */
+    private void updateProductCommonFields(Product existingProduct, Product productDetails) {
+        // CHÚ THÍCH: Bắt đầu phần xử lý và kiểm tra giá
+        // Lấy giá mới từ dữ liệu người dùng gửi lên
+        double newPrice = productDetails.getPrice();
+        // Lấy giá cũ từ sản phẩm đã có trong database
+        double oldPrice = existingProduct.getPrice();
+
+        // Tính toán ngưỡng giá cho phép
+        double minPrice = oldPrice * 0.3;
+        double maxPrice = oldPrice * 1.5;
+
+        // Kiểm tra nếu giá mới không nằm trong khoảng cho phép
+        if (newPrice < minPrice || newPrice > maxPrice) {
+            String message = String.format(
+                "Giá mới phải nằm trong khoảng từ %.0f đến %.0f.",
+                Math.ceil(minPrice),
+                Math.floor(maxPrice)
+            );
+            // Ném ra lỗi để báo cho người dùng
+            throw new InvalidRequestException(message);
+        }
+        // Kết thúc phần xử lý giá
+
+        // Nếu giá hợp lệ, cập nhật tất cả các trường chung
+        existingProduct.setTitle(productDetails.getTitle());
+        existingProduct.setDescription(productDetails.getDescription());
+        existingProduct.setPrice(newPrice); // Cập nhật giá mới đã được kiểm tra
+        existingProduct.setQuantity(productDetails.getQuantity());
+        existingProduct.setWeight(productDetails.getWeight());
+        existingProduct.setImageURL(productDetails.getImageURL());
+        existingProduct.setRushDeliverySupport(productDetails.isRushDeliverySupport());
+    }
 
     // --- Define constants for your business rules ---
     private static final int DAILY_DELETE_LIMIT = 30;
@@ -152,24 +189,20 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * [REFACTORED] Updated using the "Find, Update, Save" pattern.
-     * This prevents issues like 'productType' being null and is safer.
+     *  using the "Find, Update, Save" pattern.
+     * This prevents issues like 'productType' being null and is safe against concurrent updates.
+     * It also ensures that the common fields of Product are updated correctly.
      */
+
     @Override
     public Product updateCD(String id, CD productDetails) {
         CD existingCD = (CD) productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("CD not found with id: " + id));
 
-        // Các trường chung từ lớp Product
-        existingCD.setTitle(productDetails.getTitle());
-        existingCD.setDescription(productDetails.getDescription());
-        existingCD.setPrice(productDetails.getPrice());
-        existingCD.setQuantity(productDetails.getQuantity());
-        existingCD.setWeight(productDetails.getWeight());
-        existingCD.setImageURL(productDetails.getImageURL());
-        existingCD.setRushDeliverySupport(productDetails.isRushDeliverySupport());
-        
-        // Các trường riêng của CD (đã đúng)
+        // Gọi phương thức chung để cập nhật các trường của Product
+        updateProductCommonFields(existingCD, productDetails);
+
+        // Chỉ cập nhật các trường riêng của CD
         existingCD.setArtist(productDetails.getArtist());
         existingCD.setRecordLabel(productDetails.getRecordLabel());
         existingCD.setMusicType(productDetails.getMusicType());
@@ -182,24 +215,18 @@ public class UserServiceImpl implements UserService {
     public Product updateBook(String id, Book productDetails) {
         Book existingBook = (Book) productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Book not found with id: " + id));
-        
-        // Các trường chung từ lớp Product
-        existingBook.setTitle(productDetails.getTitle());
-        existingBook.setDescription(productDetails.getDescription());
-        existingBook.setPrice(productDetails.getPrice());
-        existingBook.setQuantity(productDetails.getQuantity());
-        existingBook.setWeight(productDetails.getWeight());
-        existingBook.setImageURL(productDetails.getImageURL());
-        existingBook.setRushDeliverySupport(productDetails.isRushDeliverySupport());
-        
-        // Các trường riêng của Book (đã được chỉnh lại cho đúng entity)
+
+        // Gọi phương thức chung để cập nhật các trường của Product
+        updateProductCommonFields(existingBook, productDetails);
+
+        // Chỉ cập nhật các trường riêng của Book
         existingBook.setAuthor(productDetails.getAuthor());
         existingBook.setPublisher(productDetails.getPublisher());
         existingBook.setCoverType(productDetails.getCoverType());
-        existingBook.setLanguage(productDetails.getLanguage()); //  <-- THÊM LẠI
-        existingBook.setPublishDate(productDetails.getPublishDate()); // <-- SỬA LẠI
-        existingBook.setNumOfPages(productDetails.getNumOfPages());   // <-- SỬA LẠI
-        existingBook.setBookCategory(productDetails.getBookCategory()); // <-- THÊM LẠI
+        existingBook.setLanguage(productDetails.getLanguage());
+        existingBook.setPublishDate(productDetails.getPublishDate());
+        existingBook.setNumOfPages(productDetails.getNumOfPages());
+        existingBook.setBookCategory(productDetails.getBookCategory());
         
         return productRepository.save(existingBook);
     }
@@ -209,25 +236,26 @@ public class UserServiceImpl implements UserService {
         DVD existingDVD = (DVD) productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("DVD not found with id: " + id));
 
-        // Các trường chung từ lớp Product
-        existingDVD.setTitle(productDetails.getTitle());
-        existingDVD.setDescription(productDetails.getDescription());
-        existingDVD.setPrice(productDetails.getPrice());
-        existingDVD.setQuantity(productDetails.getQuantity());
-        existingDVD.setWeight(productDetails.getWeight());
-        existingDVD.setImageURL(productDetails.getImageURL());
-        existingDVD.setRushDeliverySupport(productDetails.isRushDeliverySupport());
-        
-        // Các trường riêng của DVD (đã được chỉnh lại cho đúng entity)
+        // Gọi phương thức chung để cập nhật các trường của Product
+        updateProductCommonFields(existingDVD, productDetails);
+
+        // Chỉ cập nhật các trường riêng của DVD
         existingDVD.setDirector(productDetails.getDirector());
         existingDVD.setSubtitles(productDetails.getSubtitles());
         existingDVD.setReleasedDate(productDetails.getReleasedDate());
-        existingDVD.setLanguage(productDetails.getLanguage()); // <-- THÊM LẠI
-        existingDVD.setDiscType(productDetails.getDiscType()); // <-- SỬA LẠI
-        existingDVD.setDuration(productDetails.getDuration()); // <-- SỬA LẠI
-        existingDVD.setFilmType(productDetails.getFilmType()); // <-- SỬA LẠI
+        existingDVD.setLanguage(productDetails.getLanguage());
+        existingDVD.setDiscType(productDetails.getDiscType());
+        existingDVD.setDuration(productDetails.getDuration());
+        existingDVD.setFilmType(productDetails.getFilmType());
 
         return productRepository.save(existingDVD);
+    }
+    @Override
+    public Product updatePrice(String productId, int newPrice) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        product.setPrice(newPrice);
+        return productRepository.save(product);
     }
 
     @Override
@@ -292,13 +320,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    @Override
-    public Product updatePrice(String productId, int newPrice) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
-        product.setPrice(newPrice);
-        return productRepository.save(product);
-    }
 
     @Override
     public String getURLImage(Cloudinary cloudinary, MultipartFile image) throws IOException {

@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 type MediaShopResponse<T> = { code: number; message: string; data?: T; };
 
-// IMPROVED: handleApiResponse to handle responses with no body (common with DELETE)
+// handleApiResponse to handle responses with no body (common with DELETE)
 async function handleApiResponse<T>(response: Response): Promise<T> {
     if (response.status === 204) { // 204 No Content is a success
         return undefined as T;
@@ -28,7 +28,7 @@ const getAllProducts = (userId: string): Promise<MediaItem[]> => {
     return fetch(`http://localhost:8080/api/ProductManager/products?userId=${userId}`).then(res => handleApiResponse<MediaItem[]>(res));
 };
 
-// UPDATED: Delete product function to send userId
+//  Delete product function to send userId
 const deleteProductById = (productId: string, userId: string): Promise<void> => {
     // URL matches backend: /delete/{id}?userId=...
     return fetch(`http://localhost:8080/api/ProductManager/delete/${productId}?userId=${userId}`, {
@@ -36,13 +36,12 @@ const deleteProductById = (productId: string, userId: string): Promise<void> => 
     }).then(res => handleApiResponse<void>(res));
 };
 
-// NEW: API function to delete multiple products, more efficient
+// API function to delete multiple products, more efficient
 const deleteListProduct = (productIds: string[], userId: string): Promise<void> => {
     const params = new URLSearchParams();
     params.append('userId', userId);
     productIds.forEach(id => params.append('ids', id));
     
-    // URL matches backend: /delete-list?userId=...&ids=...&ids=...
     return fetch(`http://localhost:8080/api/ProductManager/delete-list?${params.toString()}`, {
         method: 'DELETE',
     }).then(res => handleApiResponse<void>(res));
@@ -91,7 +90,7 @@ const ProductList: React.FC = () => {
         }
     };
     
-    // UPDATED: Delete logic to pass userId
+    // Delete logic to pass userId
     const handleDeleteProduct = async (productId: string, productTitle: string) => {
         if (!currentUser?.id) {
             setError("Cannot find the user information for this action.");
@@ -108,7 +107,7 @@ const ProductList: React.FC = () => {
         }
     };
 
-    // UPDATED: Bulk delete logic to call new efficient API
+    // Bulk delete logic to call new efficient API
     const handleDeleteSelected = async () => {
         if (!currentUser?.id) {
             setError("Cannot find user information to perform this action.");

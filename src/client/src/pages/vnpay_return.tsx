@@ -31,7 +31,7 @@ const VNPayReturn: React.FC = () => {
         };
         
         try {
-            const res = await fetch('http://localhost:8080/api/payment/pay_return', {
+            const res = await fetch('http://localhost:8080/api/payment/pay_return?type=vnpay', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(vnp_Params),

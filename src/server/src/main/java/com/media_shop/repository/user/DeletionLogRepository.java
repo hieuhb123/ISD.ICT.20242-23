@@ -1,4 +1,4 @@
-package com.media_shop.repository.user; // Or your repository package
+package com.media_shop.repository.user;
 
 import com.media_shop.entity.user.DeletionLog;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -11,7 +11,6 @@ public interface DeletionLogRepository extends MongoRepository<DeletionLog, Stri
 
     /**
      * Counts documents by the manager's ID created after a specific time.
-     * Spring Data MongoDB can derive this query from the method name.
      */
     long countByManagerIdAndDeletedAtAfter(String managerId, LocalDateTime startTime);
 }

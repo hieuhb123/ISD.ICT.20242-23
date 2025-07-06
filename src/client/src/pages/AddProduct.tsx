@@ -1,10 +1,9 @@
-// Import necessary components
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MediaItem } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
-// ... (initialFormState and BOOK_CATEGORIES unchanged)
 const initialFormState: Partial<MediaItem> = {
     title: '',
     price: '',
