@@ -55,7 +55,7 @@ const ViewOrder: React.FC = () => {
             };
             
             // Call refund endpoint
-            const refundRes = await fetch(`http://localhost:8080/api/payment/refund`, {
+            const refundRes = await fetch(`http://localhost:8080/api/payment/refund?type=vnpay`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -134,7 +134,7 @@ const ViewOrder: React.FC = () => {
                                             className="btn btn-sm btn-success"
                                             onClick={async () => {
                                                 // Call API to get payment link
-                                                const res = await fetch(`http://localhost:8080/api/payment/pay?orderId=${order.id}`);
+                                                const res = await fetch(`http://localhost:8080/api/payment/pay?orderId=${order.id}&type=vnpay`);
                                                 const data = await res.json();
                                                 if (data.data) {
                                                     window.location.href = data.data; // Redirect to VNPay

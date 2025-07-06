@@ -6,6 +6,7 @@ public class Constants {
 
     public final static int SUCCESS_CODE = 1;
     public final static int ERROR_CODE = 0;
+    public final static int FAILURE_CODE = 2;
 
     public final static int PRODUCT_STATUS_OUT_OF_TOCK_CODE = 0;
     public final static int PRODUCT_STATUS_IN_STOCK_CODE = 1;
