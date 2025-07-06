@@ -9,7 +9,6 @@ import com.media_shop.repository.cart.CartRepository;
 import com.media_shop.repository.product.ProductRepository;
 import com.media_shop.service.CartService;
 import com.media_shop.utils.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,10 +19,10 @@ import java.util.Optional;
 @Service
 public class CartServiceImpl implements CartService {
     private final CartRepository cartRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    public CartServiceImpl(CartRepository cartRepository) {
+    private final ProductRepository productRepository;
+    public CartServiceImpl(CartRepository cartRepository, ProductRepository productRepository) {
         this.cartRepository = cartRepository;
+        this.productRepository = productRepository;
     }
 
     public Cart getCart(String cartId) {
@@ -101,16 +100,36 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart removeItem(String cartId, String productId) {
-        Cart cart = getCart(cartId);
-        if (cart.getListCartItem() != null) {
-            cart.getListCartItem().removeIf(item -> item.getProductId().equals(productId));
+        if (cartId == null || cartId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Cart ID cannot be null or empty");
+        }
+        if (productId == null || productId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Product ID cannot be null or empty");
         }
 
-        cart.setTotalPrice(cart.getListCartItem().stream()
-                .mapToDouble(item -> {
-                    return 0;
-                })
-                .sum());
+        Cart cart = getCart(cartId);
+
+        boolean itemRemoved = cart.getListCartItem().removeIf(item -> 
+            item.getProductId().equals(productId)
+        );
+
+        if (!itemRemoved) {
+            throw new ProductNotFoundException("Product not found in cart: " + productId);
+        }
+
+        double newTotalPrice = cart.getListCartItem().stream()
+            .mapToDouble(item -> {
+                Product product = productRepository.findById(item.getProductId())
+                    .orElse(null);
+                if (product != null && !product.isDeleted()) {
+                    return product.getPrice() * item.getQuantity();
+                }
+                return 0.0;
+            })
+            .sum();
+
+        cart.setTotalPrice(newTotalPrice);
+
         return cartRepository.save(cart);
     }
 
@@ -148,4 +167,5 @@ public class CartServiceImpl implements CartService {
         Cart cart = getCart(cartId);
         return cart.getTotalPrice();
     }
+    
 }
