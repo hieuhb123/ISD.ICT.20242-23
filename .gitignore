@@ -1,2 +1,4 @@
 src/client/package-lock.json
 src\client\package-lock.json
+# Maven
+target/

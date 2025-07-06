@@ -102,6 +102,9 @@ public class VNPayService {
         );
         
         paymentTransactionRepository.save(trans);
+        System.out.println("⏳ Saving payment transaction for orderId: " + orderId);
+        paymentTransactionRepository.save(trans);
+        System.out.println("✅ Saved payment transaction with ID: " + trans.getId());
 
         return trans;
 
